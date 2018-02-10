@@ -34,3 +34,5 @@ sysinfo.txt
 *.unitypackage
 OiOi/OiOi/Assets/UnityARKitPlugin
 UnityARKitPlugin.meta
+OiOi/OiOi/Builds
+OiOi/OiOi/Temp
