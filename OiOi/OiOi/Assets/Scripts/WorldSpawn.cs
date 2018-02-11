@@ -16,12 +16,16 @@ namespace UnityEngine.XR.iOS
 		private bool worldSpawn = false;
 
 		private Vector3[] playerMovePositions;
+		private GameObject[] planets;
+		private GameObject player;
 
 		bool HitTestWithResultType (ARPoint point, ARHitTestResultType resultTypes)
 		{
 			List<ARHitTestResult> hitResults = UnityARSessionNativeInterface.GetARSessionNativeInterface ().HitTest (point, resultTypes);
-			if (hitResults.Count > 0) {
-				foreach (var hitResult in hitResults) {
+			if (hitResults.Count > 0 && !worldSpawn) 
+			{
+				foreach (var hitResult in hitResults) 
+				{
 					worldSpawn = true;
 
 					//Debug.Log ("Got hit!");
@@ -34,13 +38,14 @@ namespace UnityEngine.XR.iOS
 					return true;
 				}
 			}
+
 			return false;
 		}
 
 		void PlanetsSpawn () 
 		{
 			Material planetMat;
-			GameObject[] planets = new GameObject[5];
+			planets = new GameObject[5];
 			playerMovePositions = new Vector3[5];
 
 			int i = 0;
@@ -62,14 +67,14 @@ namespace UnityEngine.XR.iOS
 			planets[3].GetComponent<Renderer>().material = new Material(material[3]);
 
 			planets[4] = (GameObject) Instantiate(planet);
-			planets[4].transform.position = new Vector3(m_HitTransform.position.x - 0.0f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z - 0.0f);
+			planets[4].transform.position = new Vector3(m_HitTransform.position.x + 0.1f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z);
 			planets[4].GetComponent<Renderer>().material = new Material(material[4]);
 
 			foreach (GameObject planet in planets)
 			{
-				GameObject pos;
-				pos = GameObject.FindGameObjectWithTag("Respawn");
-				playerMovePositions[i] = pos.transform.position;
+				Transform pos;
+				pos = planet.transform.Find("PlayerMovementLocation").GetComponent<Transform>();
+				playerMovePositions[i] = pos.position;
 				i++;
 			}
 
@@ -78,24 +83,64 @@ namespace UnityEngine.XR.iOS
 
 		void PlayerSpawn() 
 		{
-			GameObject player = (GameObject) Instantiate(playerPref);
+			player = (GameObject) Instantiate(playerPref);
 
 			player.transform.position = playerMovePositions[0];
+
+		}
+
+		int ClosestPlanet( Vector3 pos )
+		{
+			int planetReturn = 0;
+			float result = 100.0f;
+			int counter = 0;
+			float temp;
+
+			foreach (GameObject planet in planets)
+			{
+				temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((pos.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((pos.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((pos.y - planet.transform.position.y), 2.0f))));
+				if (temp < result)
+				{
+					result = temp;
+					planetReturn = counter;
+				}
+				counter++;
+			}
+
+			return planetReturn;
 		}
 
 		// Update is called once per frame
 		void Update () 
 		{
-			if ((Input.touchCount > 0 && m_HitTransform != null) && !worldSpawn)
+			if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
 			{
 				var touch = Input.GetTouch(0);
 				if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
 				{
 					var screenPosition = Camera.main.ScreenToViewportPoint(touch.position);
+
+					Ray ray = Camera.main.ScreenPointToRay(touch.position);
+
 					ARPoint point = new ARPoint {
 						x = screenPosition.x,
 						y = screenPosition.y
 					};
+
+					RaycastHit hit;
+							
+					if (Physics.Raycast(ray, out hit, 30.0f)) 
+					{
+						if (hit.collider.tag == "Planet")
+						{
+
+							Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
+
+							int planet = ClosestPlanet(pos);
+							player.transform.position = playerMovePositions[planet];
+
+						}
+					}
 
 					// prioritize reults types
 					ARHitTestResultType[] resultTypes = {
