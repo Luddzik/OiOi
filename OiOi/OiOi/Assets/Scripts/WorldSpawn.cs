@@ -11,6 +11,7 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private Material[] planetMaterial;
 		[SerializeField] private Material virusMaterial;
 		[SerializeField] private GameObject playerPref;
+		[SerializeField] private GameObject connectionPrefab;
 
 		[SerializeField] private UI.Image outline;
 		[SerializeField] private UI.Image alert;
@@ -25,6 +26,11 @@ namespace UnityEngine.XR.iOS
 		private GameObject[] planets;
 		private GameObject player;
 		private int playerPlanetPosition;
+		private int startPlanet;
+
+		//private GameObject[] connections;
+		//private List<> planetConnections;
+		//private int linkCounter = 0;
 
 		private List<int> infectedPlanets = new List<int>();
 
@@ -53,9 +59,9 @@ namespace UnityEngine.XR.iOS
 
 		void PlanetsSpawn () 
 		{
-			Material planetMat;
 			planets = new GameObject[10];
 			playerMovePositions = new Vector3[10];
+			//connections = new GameObject[9];
 
 			int i = 0;
 
@@ -181,6 +187,7 @@ namespace UnityEngine.XR.iOS
 						temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planets[infectedPlanets[i]].transform.position.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.z - planet.transform.position.z), 2.0f))));
 						if (temp < planetDistance)
 						{
+							startPlanet = infectedPlanets[i];
 							planetDistance = temp;
 							nextPlanet = counter;
 						}
@@ -219,11 +226,45 @@ namespace UnityEngine.XR.iOS
 			{
 				int i = SpreadPlanet();
 
+				LinkSpread(i);
+
 				planets[i].GetComponent<Renderer>().material = new Material(virusMaterial);
 				planets[i].tag = "Infected";
 
 				yield return new WaitForSeconds(5.0f);
 			}
+		}
+
+		void LinkSpread(int destinationPlanet)
+		{
+			GameObject link = (GameObject) Instantiate(connectionPrefab);
+			//link.transform.position = planets[startPlanet].transform.position;
+			//link.transform.LookAt(planets[destinationPlanet].transform.position);
+
+			Vector3 between = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
+			float distance = between.magnitude;
+
+			float x = link.transform.localScale.x;
+			float y = link.transform.localScale.y;
+			float z = link.transform.localScale.z;
+
+			link.transform.localScale = new Vector3(x, y, z * distance * 50.0f);
+
+			link.transform.position = planets[startPlanet].transform.position - (between / 2.0f);
+			link.transform.LookAt(planets[destinationPlanet].transform);
+				
+			//Vector3 direction = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
+			//direction.Normalize();
+
+			//Transform pos = connections[linkCounter].transform.Find("EndPoint").GetComponent<Transform>();
+
+			//link.transform.Translate(direction);
+
+			//float scale = link.transform.localScale.y;
+			//float newScale = scale + distance;
+
+			//link.transform.localScale.Scale(new Vector3(1.0f, newScale, 1.0f));
+
 		}
 
 		int GetRandomPlanet()
