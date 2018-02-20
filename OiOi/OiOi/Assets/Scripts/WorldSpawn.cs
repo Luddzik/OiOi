@@ -15,6 +15,8 @@ namespace UnityEngine.XR.iOS
 
 		[SerializeField] private UI.Image outline;
 		[SerializeField] private UI.Image alert;
+
+		[SerializeField] private GameObject gameManager;
 		
 		public Transform m_HitTransform;
 		public float maxRayDistance = 30.0f;
@@ -28,9 +30,9 @@ namespace UnityEngine.XR.iOS
 		private int playerPlanetPosition;
 		private int startPlanet;
 
-		//private GameObject[] connections;
+		private GameObject[] links;
 		//private List<> planetConnections;
-		//private int linkCounter = 0;
+		private int linkCounter = 0;
 
 		private List<int> infectedPlanets = new List<int>();
 
@@ -59,9 +61,10 @@ namespace UnityEngine.XR.iOS
 
 		void PlanetsSpawn () 
 		{
+			
 			planets = new GameObject[10];
 			playerMovePositions = new Vector3[10];
-			//connections = new GameObject[9];
+			links = new GameObject[9];
 
 			int i = 0;
 
@@ -146,6 +149,8 @@ namespace UnityEngine.XR.iOS
 
 			player.transform.position = playerMovePositions[0];
 
+			playerPlanetPosition = 0;
+
 		}
 
 		int ClosestPlanet( Vector3 pos )
@@ -217,10 +222,12 @@ namespace UnityEngine.XR.iOS
 
 			infectedPlanets.Add(infPlanet);
 
+			yield return new WaitForSeconds(2.0f);
+
 			outline.color = new Color(255,255,255,0);
 			alert.color = new Color(255,255,255,0);
 
-			yield return new WaitForSeconds(10.0f);
+			yield return new WaitForSeconds(8.0f);
 
 			while(worldSpawn)
 			{
@@ -231,28 +238,37 @@ namespace UnityEngine.XR.iOS
 				planets[i].GetComponent<Renderer>().material = new Material(virusMaterial);
 				planets[i].tag = "Infected";
 
+				infectedPlanets.Add(i);
+
+				if (playerPlanetPosition == i)
+				{
+					gameManager.GetComponent<Pause>().GameOverScreen();
+				}
+
 				yield return new WaitForSeconds(5.0f);
 			}
 		}
 
 		void LinkSpread(int destinationPlanet)
 		{
-			GameObject link = (GameObject) Instantiate(connectionPrefab);
+			links[linkCounter] = (GameObject) Instantiate(connectionPrefab);
 			//link.transform.position = planets[startPlanet].transform.position;
 			//link.transform.LookAt(planets[destinationPlanet].transform.position);
 
 			Vector3 between = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
 			float distance = between.magnitude;
 
-			float x = link.transform.localScale.x;
-			float y = link.transform.localScale.y;
-			float z = link.transform.localScale.z;
+			float x = links[linkCounter].transform.localScale.x;
+			float y = links[linkCounter].transform.localScale.y;
+			float z = links[linkCounter].transform.localScale.z;
 
-			link.transform.localScale = new Vector3(x, y, z * distance * 50.0f);
+			links[linkCounter].transform.localScale = new Vector3(x, y, z * distance * 50.0f);
 
-			link.transform.position = planets[startPlanet].transform.position - (between / 2.0f);
-			link.transform.LookAt(planets[destinationPlanet].transform);
-				
+			links[linkCounter].transform.position = planets[startPlanet].transform.position - (between / 2.0f);
+			links[linkCounter].transform.LookAt(planets[destinationPlanet].transform);
+
+
+			linkCounter++;	
 			//Vector3 direction = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
 			//direction.Normalize();
 
@@ -313,9 +329,9 @@ namespace UnityEngine.XR.iOS
 
 					RaycastHit hit;
 							
-					if (Physics.Raycast(ray, out hit, 30.0f)) 
+					if (Physics.Raycast(ray, out hit, 50.0f)) 
 					{
-						if (hit.collider.tag == "Planet")
+						if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected")
 						{
 
 							Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
@@ -326,6 +342,14 @@ namespace UnityEngine.XR.iOS
 
 						}
 					}
+
+					if (worldSpawn && planets[playerPlanetPosition].tag == "Infected")
+					{
+						gameManager.GetComponent<Pause>().GameOverScreen();
+
+					}
+
+					//GameObject.Find("Canvas").GetComponent<Pause>().GameOverScreen();
 
 					// prioritize reults types
 					ARHitTestResultType[] resultTypes = {
