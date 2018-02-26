@@ -17,6 +17,13 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private UI.Image alert;
 
 		[SerializeField] private GameObject gameManager;
+
+		[SerializeField] private GameObject planetMenuPrefab;
+
+		private GameObject planetMenu;
+
+		private int clickPlanet = 100;
+		private bool clicked = false;
 		
 		public Transform m_HitTransform;
 		public float maxRayDistance = 30.0f;
@@ -140,7 +147,16 @@ namespace UnityEngine.XR.iOS
 
 			PlayerSpawn();
 
+			MenuSpawn();
+
 			StartCoroutine("Virus");
+		}
+
+		void MenuSpawn ()
+		{
+			planetMenu = (GameObject) Instantiate(planetMenuPrefab);
+			planetMenu.SetActive(false);
+
 		}
 
 		void PlayerSpawn() 
@@ -222,6 +238,8 @@ namespace UnityEngine.XR.iOS
 
 			infectedPlanets.Add(infPlanet);
 
+			GameState(infPlanet);
+
 			yield return new WaitForSeconds(2.0f);
 
 			outline.color = new Color(255,255,255,0);
@@ -240,10 +258,7 @@ namespace UnityEngine.XR.iOS
 
 				infectedPlanets.Add(i);
 
-				if (playerPlanetPosition == i)
-				{
-					gameManager.GetComponent<Pause>().GameOverScreen();
-				}
+				GameState(i);
 
 				yield return new WaitForSeconds(5.0f);
 			}
@@ -310,7 +325,63 @@ namespace UnityEngine.XR.iOS
 			return returnPlanet;
 		}
 
-		// Update is called once per frame
+		void GameState (int planet)
+		{
+			if (planet == playerPlanetPosition)
+			{
+				gameManager.GetComponent<Pause>().GameOverScreen();
+			}
+		}
+
+		void PlanetMenuUpdate(int i)
+		{
+			Transform position = planets[i].transform.Find("Left").GetComponent<Transform>();
+			planetMenu.transform.position = position.position;
+
+			//planetMenu.SetActive(true);
+
+			if (clickPlanet == i)
+			{
+				if (clicked == true)
+				{
+					planetMenu.SetActive(false);
+					clicked = false;
+				}
+				if (clicked == false)
+				{
+					planetMenu.SetActive(true);
+					clicked = true;
+				}
+			}
+			else if (clickPlanet != i)
+			{
+				clickPlanet = i;
+				planetMenu.SetActive(true);
+				clicked = true;
+			}
+
+			if(i != playerPlanetPosition)
+			{
+				planetMenu.transform.Find("Move").gameObject.SetActive(true);
+			}
+			if(i == playerPlanetPosition)
+			{
+				planetMenu.transform.Find("Move").gameObject.SetActive(false);
+			}
+
+		}
+
+		void MenuAction(int i)
+		{
+
+			playerPlanetPosition = i;
+			player.transform.position = playerMovePositions[i];
+
+			planetMenu.transform.Find("Move").gameObject.SetActive(false);
+			planetMenu.SetActive(false);
+
+		}
+
 		void Update () 
 		{
 			if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
@@ -327,30 +398,6 @@ namespace UnityEngine.XR.iOS
 						y = screenPosition.y
 					};
 
-					RaycastHit hit;
-							
-					if (Physics.Raycast(ray, out hit, 50.0f)) 
-					{
-						if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected")
-						{
-
-							Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
-
-							int planet = ClosestPlanet(pos);
-							playerPlanetPosition = planet;
-							player.transform.position = playerMovePositions[planet];
-
-						}
-					}
-
-					if (worldSpawn && planets[playerPlanetPosition].tag == "Infected")
-					{
-						gameManager.GetComponent<Pause>().GameOverScreen();
-
-					}
-
-					//GameObject.Find("Canvas").GetComponent<Pause>().GameOverScreen();
-
 					// prioritize reults types
 					ARHitTestResultType[] resultTypes = {
 						ARHitTestResultType.ARHitTestResultTypeExistingPlaneUsingExtent, 
@@ -366,6 +413,39 @@ namespace UnityEngine.XR.iOS
 						{
 							return;
 						}
+					}
+
+					RaycastHit hit;
+
+					if (Physics.Raycast(ray, out hit, 50.0f)) 
+					{
+						Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
+
+						int number = ClosestPlanet(pos);
+
+						if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected")
+						{
+							if (touch.phase == TouchPhase.Began)
+							{
+								PlanetMenuUpdate(number);
+							}
+
+						}
+
+						if (hit.collider.tag == "Action")
+						{
+							if (touch.phase == TouchPhase.Began)
+							{
+								MenuAction(number);
+							}
+
+						}
+					}
+
+					if (worldSpawn && planets[playerPlanetPosition].tag == "Infected")
+					{
+						gameManager.GetComponent<Pause>().GameOverScreen();
+
 					}
 				}
 			}
