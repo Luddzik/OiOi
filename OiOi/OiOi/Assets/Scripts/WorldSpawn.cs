@@ -21,9 +21,6 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private GameObject planetMenuPrefab;
 
 		private GameObject planetMenu;
-
-		private int clickPlanet = 100;
-		private bool clicked = false;
 		
 		public Transform m_HitTransform;
 		public float maxRayDistance = 30.0f;
@@ -37,8 +34,11 @@ namespace UnityEngine.XR.iOS
 		private int playerPlanetPosition;
 		private int startPlanet;
 
+		private int[] resources;
+		private int winCondition = 0;
+
 		private GameObject[] links;
-		//private List<> planetConnections;
+
 		private int linkCounter = 0;
 
 		private List<int> infectedPlanets = new List<int>();
@@ -68,10 +68,12 @@ namespace UnityEngine.XR.iOS
 
 		void PlanetsSpawn () 
 		{
-			
-			planets = new GameObject[10];
-			playerMovePositions = new Vector3[10];
-			links = new GameObject[9];
+			int objectNumber = 10;
+			planets = new GameObject[objectNumber];
+			playerMovePositions = new Vector3[objectNumber];
+			links = new GameObject[objectNumber-1];
+
+			resources = new int[objectNumber];
 
 			int i = 0;
 
@@ -142,6 +144,8 @@ namespace UnityEngine.XR.iOS
 				Transform pos;
 				pos = planet.transform.Find("PlayerMovementLocation").GetComponent<Transform>();
 				playerMovePositions[i] = pos.position;
+
+				resources[i] = Random.Range(0, 3);
 				i++;
 			}
 
@@ -338,27 +342,7 @@ namespace UnityEngine.XR.iOS
 			Transform position = planets[i].transform.Find("Left").GetComponent<Transform>();
 			planetMenu.transform.position = position.position;
 
-			//planetMenu.SetActive(true);
-
-			if (clickPlanet == i)
-			{
-				if (clicked == true)
-				{
-					planetMenu.SetActive(false);
-					clicked = false;
-				}
-				if (clicked == false)
-				{
-					planetMenu.SetActive(true);
-					clicked = true;
-				}
-			}
-			else if (clickPlanet != i)
-			{
-				clickPlanet = i;
-				planetMenu.SetActive(true);
-				clicked = true;
-			}
+			planetMenu.SetActive(true);
 
 			if(i != playerPlanetPosition)
 			{
@@ -366,7 +350,18 @@ namespace UnityEngine.XR.iOS
 			}
 			if(i == playerPlanetPosition)
 			{
-				planetMenu.transform.Find("Move").gameObject.SetActive(false);
+				if(winCondition => 10)
+				{
+					planetMenu.transform.Find("Solution").gameObject.SetActive(true);
+				}
+				else if(resources[i] == 0)
+				{
+					planetMenu.transform.Find("Collected").gameObject.SetActive(true);
+				}
+				else if(resources[i] > 0)
+				{
+					planetMenu.transform.Find("Collect").gameObject.SetActive(true);
+				}
 			}
 
 		}
@@ -381,6 +376,22 @@ namespace UnityEngine.XR.iOS
 			planetMenu.SetActive(false);
 
 		}
+
+		void ExitMenu()
+		{
+			planetMenu.SetActive(false);
+		}
+
+		void CollectPoints(int i)
+		{
+			winCondition += resources[playerPlanetPosition];
+
+			planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+
+			planetMenu.transform.Find("Collected").gameObject.SetActive(true);
+		}
+
+
 
 		void Update () 
 		{
@@ -437,6 +448,15 @@ namespace UnityEngine.XR.iOS
 							if (touch.phase == TouchPhase.Began)
 							{
 								MenuAction(number);
+							}
+
+						}
+
+						if (hit.collider.tag == "Exit")
+						{
+							if (touch.phase == TouchPhase.Began)
+							{
+								ExitMenu();
 							}
 
 						}

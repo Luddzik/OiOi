@@ -1257,7 +1257,7 @@ MonoBehaviour:
   outline: {fileID: 283509404}
   alert: {fileID: 1712308353}
   gameManager: {fileID: 822611394}
-  planetMenuPrefab: {fileID: 1477877115418130, guid: daa4af2dcbce747d8aeff80da0b847be,
+  planetMenuPrefab: {fileID: 1977886510736490, guid: daa4af2dcbce747d8aeff80da0b847be,
     type: 2}
   m_HitTransform: {fileID: 1286139108}
   maxRayDistance: 30
