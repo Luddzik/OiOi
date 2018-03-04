@@ -145,7 +145,7 @@ namespace UnityEngine.XR.iOS
 				pos = planet.transform.Find("PlayerMovementLocation").GetComponent<Transform>();
 				playerMovePositions[i] = pos.position;
 
-				resources[i] = Random.Range(0, 3);
+				resources[i] = Random.Range(0, 4);
 				i++;
 			}
 
@@ -347,20 +347,47 @@ namespace UnityEngine.XR.iOS
 			if(i != playerPlanetPosition)
 			{
 				planetMenu.transform.Find("Move").gameObject.SetActive(true);
+				planetMenu.transform.Find("Solution").gameObject.SetActive(false);
+				planetMenu.transform.Find("Collected").gameObject.SetActive(false);
+				planetMenu.transform.Find("Collect").gameObject.SetActive(false);
 			}
 			if(i == playerPlanetPosition)
 			{
-				if(winCondition => 10)
+				if(winCondition >= 5 && resources[i] > 0)
+				{
+					string resourceText = string.Concat("Collect: ", resources[i].ToString(), "\nIngredients");
+					planetMenu.transform.Find("CollectOrSolution").Find("IngredientsText").GetComponent<TextMesh>().text = resourceText;
+					planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(true);
+					planetMenu.transform.Find("Solution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Move").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+				}
+				else if(winCondition >= 5)
 				{
 					planetMenu.transform.Find("Solution").gameObject.SetActive(true);
+					planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Move").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
 				}
 				else if(resources[i] == 0)
 				{
 					planetMenu.transform.Find("Collected").gameObject.SetActive(true);
+					planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Move").gameObject.SetActive(false);
+					planetMenu.transform.Find("Solution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
 				}
 				else if(resources[i] > 0)
 				{
+					string resourceText = string.Concat("Collect: ", resources[i].ToString(), "\nIngredients");
+					planetMenu.transform.Find("Collect").Find("Text").GetComponent<TextMesh>().text = resourceText;
 					planetMenu.transform.Find("Collect").gameObject.SetActive(true);
+					planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Move").gameObject.SetActive(false);
+					planetMenu.transform.Find("Solution").gameObject.SetActive(false);
+					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
 				}
 			}
 
@@ -368,13 +395,23 @@ namespace UnityEngine.XR.iOS
 
 		void MenuAction(int i)
 		{
+			if(planetMenu.transform.Find("Move").gameObject.activeSelf)
+			{
+				playerPlanetPosition = i;
+				player.transform.position = playerMovePositions[i];
 
-			playerPlanetPosition = i;
-			player.transform.position = playerMovePositions[i];
-
-			planetMenu.transform.Find("Move").gameObject.SetActive(false);
-			planetMenu.SetActive(false);
-
+				planetMenu.transform.Find("Move").gameObject.SetActive(false);
+				planetMenu.SetActive(false);
+			}
+			else if (planetMenu.transform.Find("Collect").gameObject.activeSelf)
+			{
+				CollectPoints();
+			}
+			else if (planetMenu.transform.Find("CollectOrSolution").gameObject.activeSelf)
+			{
+				CollectPoints();
+			}
+				
 		}
 
 		void ExitMenu()
@@ -382,15 +419,21 @@ namespace UnityEngine.XR.iOS
 			planetMenu.SetActive(false);
 		}
 
-		void CollectPoints(int i)
+		void CollectPoints()
 		{
 			winCondition += resources[playerPlanetPosition];
 
 			planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+			planetMenu.SetActive(false);
+			resources[playerPlanetPosition] = 0;
 
-			planetMenu.transform.Find("Collected").gameObject.SetActive(true);
+			//MenuAction(playerPlanetPosition);
 		}
 
+		void WinGame()
+		{
+			gameManager.GetComponent<Pause>().GameOverScreen();
+		}
 
 
 		void Update () 
@@ -448,6 +491,15 @@ namespace UnityEngine.XR.iOS
 							if (touch.phase == TouchPhase.Began)
 							{
 								MenuAction(number);
+							}
+
+						}
+
+						if (hit.collider.tag == "SolWin")
+						{
+							if (touch.phase == TouchPhase.Began)
+							{
+								WinGame();
 							}
 
 						}
