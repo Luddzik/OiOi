@@ -66,6 +66,11 @@ namespace UnityEngine.XR.iOS
 			return false;
 		}
 
+		public int GetIngredientsNumber()
+		{
+			return winCondition;
+		}
+
 		void PlanetsSpawn () 
 		{
 			int objectNumber = 10;
@@ -430,11 +435,10 @@ namespace UnityEngine.XR.iOS
 			//MenuAction(playerPlanetPosition);
 		}
 
-		void WinGame()
+		void Solution()
 		{
-			gameManager.GetComponent<Pause>().GameOverScreen();
+			gameManager.GetComponent<Pause>().WinScreen();
 		}
-
 
 		void Update () 
 		{
@@ -499,7 +503,7 @@ namespace UnityEngine.XR.iOS
 						{
 							if (touch.phase == TouchPhase.Began)
 							{
-								WinGame();
+								Solution();
 							}
 
 						}
