@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using System.Collections;
 using System.Collections.Generic;
 //using UnityEditor.UI;
@@ -10,8 +10,11 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private GameObject planet;
 		[SerializeField] private Material[] planetMaterial;
 		[SerializeField] private Material virusMaterial;
+        [SerializeField] private Material healthyPlanetMaterial; //Healthy planet material
 		[SerializeField] private GameObject playerPref;
 		[SerializeField] private GameObject connectionPrefab;
+        [SerializeField] private GameObject healthyConnectionPrefab; //Healthy connection prefab
+        [SerializeField] private GameObject bombPrefab; //Bomb prefab
 
 		[SerializeField] private UI.Image outline;
 		[SerializeField] private UI.Image alert;
@@ -21,6 +24,8 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private GameObject planetMenuPrefab;
 
 		private GameObject planetMenu;
+
+        private GameObject bomb;
 		
 		public Transform m_HitTransform;
 		public float maxRayDistance = 30.0f;
@@ -32,16 +37,25 @@ namespace UnityEngine.XR.iOS
 		private GameObject[] planets;
 		private GameObject player;
 		private int playerPlanetPosition;
-		private int startPlanet;
+		private int startInfectionPlanet;
+        private int startHealthyPlanet;
+
+        private int[] startPlanetPos;
+        private int[] endPlanetPos;
 
 		private int[] resources;
 		private int winCondition = 0;
+		private int bigBomb = 0;
+		private int linkSolution = 0;
 
 		private GameObject[] links;
+        private GameObject[] healthLinks;
 
 		private int linkCounter = 0;
+        private int healthyLinkCounter = 0;
 
 		private List<int> infectedPlanets = new List<int>();
+        private List<int> healthyPlanets = new List<int>();
 
 		bool HitTestWithResultType (ARPoint point, ARHitTestResultType resultTypes)
 		{
@@ -71,12 +85,42 @@ namespace UnityEngine.XR.iOS
 			return winCondition;
 		}
 
+		public void SetIngredients(int ingredient)
+		{
+			winCondition -= ingredient;
+		}
+
+		public void AddBomb(int bomb)
+		{
+			bigBomb += bomb;
+		}
+
+		public int GetBomb()
+		{
+			return bigBomb;
+		}
+
+		public void AddLinkSolution(int link)
+		{
+			linkSolution += link;
+		}
+
+		public int GetLinkSolution()
+		{
+			return linkSolution;
+		}
+
 		void PlanetsSpawn () 
 		{
 			int objectNumber = 10;
 			planets = new GameObject[objectNumber];
 			playerMovePositions = new Vector3[objectNumber];
-			links = new GameObject[objectNumber-1];
+
+            startPlanetPos = new int[objectNumber];
+            endPlanetPos = new int[objectNumber];
+
+			links = new GameObject[objectNumber - 1];
+            healthLinks = new GameObject[objectNumber - 1];
 
 			resources = new int[objectNumber];
 
@@ -217,7 +261,7 @@ namespace UnityEngine.XR.iOS
 						temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planets[infectedPlanets[i]].transform.position.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.z - planet.transform.position.z), 2.0f))));
 						if (temp < planetDistance)
 						{
-							startPlanet = infectedPlanets[i];
+                            startInfectionPlanet = infectedPlanets[i];
 							planetDistance = temp;
 							nextPlanet = counter;
 						}
@@ -276,10 +320,8 @@ namespace UnityEngine.XR.iOS
 		void LinkSpread(int destinationPlanet)
 		{
 			links[linkCounter] = (GameObject) Instantiate(connectionPrefab);
-			//link.transform.position = planets[startPlanet].transform.position;
-			//link.transform.LookAt(planets[destinationPlanet].transform.position);
 
-			Vector3 between = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
+            Vector3 between = planets[startInfectionPlanet].transform.position - planets[destinationPlanet].transform.position;
 			float distance = between.magnitude;
 
 			float x = links[linkCounter].transform.localScale.x;
@@ -288,24 +330,113 @@ namespace UnityEngine.XR.iOS
 
 			links[linkCounter].transform.localScale = new Vector3(x, y, z * distance * 50.0f);
 
-			links[linkCounter].transform.position = planets[startPlanet].transform.position - (between / 2.0f);
+            links[linkCounter].transform.position = planets[startInfectionPlanet].transform.position - (between / 2.0f);
 			links[linkCounter].transform.LookAt(planets[destinationPlanet].transform);
 
+            startPlanetPos[linkCounter] = startInfectionPlanet;
+            endPlanetPos[linkCounter] = destinationPlanet;
 
 			linkCounter++;	
-			//Vector3 direction = planets[startPlanet].transform.position - planets[destinationPlanet].transform.position;
-			//direction.Normalize();
-
-			//Transform pos = connections[linkCounter].transform.Find("EndPoint").GetComponent<Transform>();
-
-			//link.transform.Translate(direction);
-
-			//float scale = link.transform.localScale.y;
-			//float newScale = scale + distance;
-
-			//link.transform.localScale.Scale(new Vector3(1.0f, newScale, 1.0f));
 
 		}
+
+        IEnumerator Health()
+        {
+            while (worldSpawn)
+            {
+                int i = HealthySpreadPlanet();
+
+                HealthyLinkSpread(i);
+
+                if(planets[i].tag == "Infected")
+                {
+                    infectedPlanets.Remove(i);
+                    RemoveInfectedLink(i);
+                }
+
+                planets[i].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
+                planets[i].tag = "HealthyPlanet";
+
+                healthyPlanets.Add(i);
+
+                yield return new WaitForSeconds(2.0f);
+            }
+        }
+
+        void RemoveInfectedLink(int i)
+        {
+            int counter = 0;
+
+            foreach(int number in startPlanetPos)
+            {
+                if(number == i)
+                {
+                    links[counter].SetActive(false);
+                }
+                counter++;
+            }
+
+            counter = 0;
+
+            foreach (int number in endPlanetPos)
+            {
+                if (number == i)
+                {
+                    links[counter].SetActive(false);
+                }
+                counter++;
+            }
+        }
+
+        int HealthySpreadPlanet()
+        {
+            int numberOfHealth = healthyPlanets.Count;
+            int nextPlanet = 0;
+            float planetDistance = 100.0f;
+
+            float temp;
+            int counter = 0;
+
+            for (int i = 0; i < numberOfHealth; i++)
+            {
+                foreach (GameObject planet in planets)
+                {
+                    if (planet.tag == "Planet" || planet.tag == "Infected")
+                    {
+                        temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planets[healthyPlanets[i]].transform.position.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((planets[healthyPlanets[i]].transform.position.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((planets[healthyPlanets[i]].transform.position.z - planet.transform.position.z), 2.0f))));
+                        if (temp < planetDistance)
+                        {
+                            startHealthyPlanet = healthyPlanets[i];
+                            planetDistance = temp;
+                            nextPlanet = counter;
+                        }
+                    }
+                    counter++;
+                }
+                counter = 0;
+            }
+
+            return nextPlanet;
+        }
+
+        void HealthyLinkSpread(int destination)
+        {
+            healthLinks[healthyLinkCounter] = (GameObject)Instantiate(healthyConnectionPrefab);
+
+            Vector3 between = planets[startHealthyPlanet].transform.position - planets[destination].transform.position;
+            float distance = between.magnitude;
+
+            float x = healthLinks[healthyLinkCounter].transform.localScale.x;
+            float y = healthLinks[healthyLinkCounter].transform.localScale.y;
+            float z = healthLinks[healthyLinkCounter].transform.localScale.z;
+
+            healthLinks[healthyLinkCounter].transform.localScale = new Vector3(x, y, z * distance * 50.0f);
+
+            healthLinks[healthyLinkCounter].transform.position = planets[startHealthyPlanet].transform.position - (between / 2.0f);
+            healthLinks[healthyLinkCounter].transform.LookAt(planets[destination].transform);
+
+            healthyLinkCounter++;
+        }
 
 		int GetRandomPlanet()
 		{
@@ -355,10 +486,12 @@ namespace UnityEngine.XR.iOS
 				planetMenu.transform.Find("Solution").gameObject.SetActive(false);
 				planetMenu.transform.Find("Collected").gameObject.SetActive(false);
 				planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+				planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
+				planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(false);
 			}
 			if(i == playerPlanetPosition)
 			{
-				if(winCondition >= 5 && resources[i] > 0)
+				if((linkSolution >= 1 || bigBomb >= 1) && resources[i] > 0)
 				{
 					string resourceText = string.Concat("Collect: ", resources[i].ToString(), "\nIngredients");
 					planetMenu.transform.Find("CollectOrSolution").Find("IngredientsText").GetComponent<TextMesh>().text = resourceText;
@@ -367,14 +500,16 @@ namespace UnityEngine.XR.iOS
 					planetMenu.transform.Find("Move").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+					planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(false);
 				}
-				else if(winCondition >= 5)
+				else if(linkSolution >= 1 || bigBomb >= 1)
 				{
 					planetMenu.transform.Find("Solution").gameObject.SetActive(true);
 					planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
 					planetMenu.transform.Find("Move").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+					planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(false);
 				}
 				else if(resources[i] == 0)
 				{
@@ -383,6 +518,7 @@ namespace UnityEngine.XR.iOS
 					planetMenu.transform.Find("Move").gameObject.SetActive(false);
 					planetMenu.transform.Find("Solution").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+					planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(false);
 				}
 				else if(resources[i] > 0)
 				{
@@ -393,6 +529,7 @@ namespace UnityEngine.XR.iOS
 					planetMenu.transform.Find("Move").gameObject.SetActive(false);
 					planetMenu.transform.Find("Solution").gameObject.SetActive(false);
 					planetMenu.transform.Find("Collected").gameObject.SetActive(false);
+					planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(false);
 				}
 			}
 
@@ -424,18 +561,60 @@ namespace UnityEngine.XR.iOS
 			planetMenu.SetActive(false);
 		}
 
-		void CollectPoints()
-		{
-			winCondition += resources[playerPlanetPosition];
+        void CollectPoints()
+        {
+            winCondition += resources[playerPlanetPosition];
 
-			planetMenu.transform.Find("Collect").gameObject.SetActive(false);
-			planetMenu.SetActive(false);
-			resources[playerPlanetPosition] = 0;
+            planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+            planetMenu.SetActive(false);
+            resources[playerPlanetPosition] = 0;
 
-			//MenuAction(playerPlanetPosition);
-		}
+            //MenuAction(playerPlanetPosition);
+        }
 
 		void Solution()
+		{
+			//gameManager.GetComponent<Pause>().WinScreen();
+			planetMenu.transform.Find("SolutionChoice").gameObject.SetActive(true);
+			planetMenu.transform.Find("Collect").gameObject.SetActive(false);
+			planetMenu.transform.Find("CollectOrSolution").gameObject.SetActive(false);
+			planetMenu.transform.Find("Move").gameObject.SetActive(false);
+			planetMenu.transform.Find("Solution").gameObject.SetActive(false);
+			planetMenu.transform.Find("Collected").gameObject.SetActive(false);
+
+			planetMenu.transform.Find("SolutionChoice").Find("Bomb").gameObject.SetActive(false);
+			planetMenu.transform.Find("SolutionChoice").Find("Link").gameObject.SetActive(false);
+
+			if(bigBomb >= 1)
+			{
+				planetMenu.transform.Find("SolutionChoice").Find("Bomb").gameObject.SetActive(true);
+			}
+			if(linkSolution >= 1)
+			{
+				planetMenu.transform.Find("SolutionChoice").Find("Link").gameObject.SetActive(true);
+			}
+		}
+
+        void HealthSpread()
+        {
+            
+            planets[playerPlanetPosition].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
+            planets[playerPlanetPosition].tag = "HealthyPlanet";
+
+            healthyPlanets.Add(playerPlanetPosition);
+
+            StartCoroutine("Health");
+        }
+
+        void HealthBomb()
+        {
+            bomb = (GameObject)Instantiate(bombPrefab);
+
+
+            bomb.transform.position = planets[playerPlanetPosition].transform.position;
+        }
+
+		void Win()
 		{
 			gameManager.GetComponent<Pause>().WinScreen();
 		}
@@ -499,7 +678,7 @@ namespace UnityEngine.XR.iOS
 
 						}
 
-						if (hit.collider.tag == "SolWin")
+						if (hit.collider.tag == "Choice")
 						{
 							if (touch.phase == TouchPhase.Began)
 							{
@@ -507,6 +686,16 @@ namespace UnityEngine.XR.iOS
 							}
 
 						}
+
+						if (hit.collider.tag == "Bomb")
+						{
+                            HealthBomb();
+						}
+
+                        if (hit.collider.tag == "HealthyLink")
+                        {
+                            HealthSpread();
+                        }
 
 						if (hit.collider.tag == "Exit")
 						{
@@ -531,4 +720,3 @@ namespace UnityEngine.XR.iOS
 
 	}
 }
-

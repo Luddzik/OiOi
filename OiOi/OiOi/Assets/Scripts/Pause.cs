@@ -18,6 +18,10 @@ namespace UnityEngine.XR.iOS
 		[SerializeField] private Text solutionOneText;
 		[SerializeField] private Text solutionTwoText;
 
+		private int ingredientsNumber = 0;
+		private int solutionOneNumber = 0;
+		private int solutionTwoNumber = 0;
+
 		void Awake()
 		{
 			Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -37,8 +41,12 @@ namespace UnityEngine.XR.iOS
 
 		public void PauseScreen()
 		{
-			int ingredientsNumber = world.GetComponent<WorldSpawn>().GetIngredientsNumber();
+			ingredientsNumber = world.GetComponent<WorldSpawn>().GetIngredientsNumber();
+			solutionOneNumber = world.GetComponent<WorldSpawn>().GetBomb();
+			solutionTwoNumber = world.GetComponent<WorldSpawn>().GetLinkSolution();
 			ingredientsText.text = ingredientsNumber.ToString();
+			solutionOneText.text = solutionOneNumber.ToString();
+			solutionTwoText.text = solutionTwoNumber.ToString();
 			gameScreen.SetActive(false);
 			pauseScreen.SetActive(true);
 			Time.timeScale = 0.0f;
@@ -69,6 +77,40 @@ namespace UnityEngine.XR.iOS
 		{
 			Scene scene = SceneManager.GetActiveScene();
 			SceneManager.LoadScene(scene.name);
+		}
+
+		public void AddSolutionOne()
+		{
+			if(ingredientsNumber >= 5)
+			{
+				world.GetComponent<WorldSpawn>().AddBomb(1);
+				//ingredientsNumber -= 5;
+				world.GetComponent<WorldSpawn>().SetIngredients(5);
+
+				ingredientsNumber = world.GetComponent<WorldSpawn>().GetIngredientsNumber();
+				solutionOneNumber = world.GetComponent<WorldSpawn>().GetBomb();
+				solutionTwoNumber = world.GetComponent<WorldSpawn>().GetLinkSolution();
+				ingredientsText.text = ingredientsNumber.ToString();
+				solutionOneText.text = solutionOneNumber.ToString();
+				solutionTwoText.text = solutionTwoNumber.ToString();
+			}
+		}
+
+		public void AddSolutionTwo()
+		{
+			if(ingredientsNumber >= 5)
+			{
+				world.GetComponent<WorldSpawn>().AddLinkSolution(1);
+				//ingredientsNumber -= 5;
+				world.GetComponent<WorldSpawn>().SetIngredients(5);
+
+				ingredientsNumber = world.GetComponent<WorldSpawn>().GetIngredientsNumber();
+				solutionOneNumber = world.GetComponent<WorldSpawn>().GetBomb();
+				solutionTwoNumber = world.GetComponent<WorldSpawn>().GetLinkSolution();
+				ingredientsText.text = ingredientsNumber.ToString();
+				solutionOneText.text = solutionOneNumber.ToString();
+				solutionTwoText.text = solutionTwoNumber.ToString();
+			}
 		}
 
 	}
