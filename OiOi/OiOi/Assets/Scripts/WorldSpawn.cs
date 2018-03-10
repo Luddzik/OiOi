@@ -57,6 +57,10 @@ namespace UnityEngine.XR.iOS
 		private List<int> infectedPlanets = new List<int>();
         private List<int> healthyPlanets = new List<int>();
 
+        private int linkCount = 0;
+
+        private int menuMemory = 0;
+
 		bool HitTestWithResultType (ARPoint point, ARHitTestResultType resultTypes)
 		{
 			List<ARHitTestResult> hitResults = UnityARSessionNativeInterface.GetARSessionNativeInterface ().HitTest (point, resultTypes);
@@ -203,7 +207,23 @@ namespace UnityEngine.XR.iOS
 			MenuSpawn();
 
 			StartCoroutine("Virus");
+            StartCoroutine("PlanetRestore");
 		}
+
+        IEnumerator PlanetRestore()
+        {
+            while(worldSpawn)
+            {
+                yield return new WaitForSeconds(10.0f);
+
+                for (int i = 0; i < resources.Length; i++)
+                {
+                    int temp = resources[i];
+                    resources[i] = temp + 1;
+                } 
+            }
+
+        }
 
 		void MenuSpawn ()
 		{
@@ -256,7 +276,7 @@ namespace UnityEngine.XR.iOS
 			{
 				foreach(GameObject planet in planets)
 				{
-					if(planet.tag == "Planet")
+                    if(planet.tag == "Planet" || planet.tag == "TempHealthyPlanet")
 					{
 						temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planets[infectedPlanets[i]].transform.position.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((planets[infectedPlanets[i]].transform.position.z - planet.transform.position.z), 2.0f))));
 						if (temp < planetDistance)
@@ -270,6 +290,11 @@ namespace UnityEngine.XR.iOS
 				}
 				counter = 0;
 			}
+
+            if(planets[nextPlanet].transform.tag != "Planet")
+            {
+                nextPlanet = SpreadPlanet();
+            }
 
 			return nextPlanet;
 		}
@@ -302,6 +327,11 @@ namespace UnityEngine.XR.iOS
 
 			while(worldSpawn)
 			{
+                if (infectedPlanets.Count == 0)
+                {
+                    Win();
+                }
+
 				int i = SpreadPlanet();
 
 				LinkSpread(i);
@@ -342,13 +372,15 @@ namespace UnityEngine.XR.iOS
 
         IEnumerator Health()
         {
+            yield return new WaitForSeconds(5.0f);
+
             while (worldSpawn)
             {
                 int i = HealthySpreadPlanet();
 
                 HealthyLinkSpread(i);
 
-                if(planets[i].tag == "Infected")
+                if (planets[i].tag == "Infected")
                 {
                     infectedPlanets.Remove(i);
                     RemoveInfectedLink(i);
@@ -359,8 +391,22 @@ namespace UnityEngine.XR.iOS
 
                 healthyPlanets.Add(i);
 
-                yield return new WaitForSeconds(2.0f);
-            }
+                linkCount++;
+
+                if(linkCount >= 3)
+                {
+                    StopLink();
+                }
+
+                yield return new WaitForSeconds(5.0f);
+            } 
+
+        }
+
+        void StopLink()
+        {
+            StopCoroutine("Health");
+            linkCount = 0;
         }
 
         void RemoveInfectedLink(int i)
@@ -401,7 +447,7 @@ namespace UnityEngine.XR.iOS
             {
                 foreach (GameObject planet in planets)
                 {
-                    if (planet.tag == "Planet" || planet.tag == "Infected")
+                    if (planet.tag == "Planet" || planet.tag == "Infected" || planet.tag == "TempHealthyPlanet")
                     {
                         temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planets[healthyPlanets[i]].transform.position.x - planet.transform.position.x), 2.0f)) + (Mathf.Pow((planets[healthyPlanets[i]].transform.position.y - planet.transform.position.y), 2.0f)) + (Mathf.Pow((planets[healthyPlanets[i]].transform.position.z - planet.transform.position.z), 2.0f))));
                         if (temp < planetDistance)
@@ -442,7 +488,7 @@ namespace UnityEngine.XR.iOS
 		{
 			int planet = Random.Range(0, planets.Length);
 
-			if (planet == playerPlanetPosition)
+            if (planet == playerPlanetPosition || planets[planet].transform.tag != "Planet")
 			{
 				GetRandomPlanet();
 			}
@@ -473,10 +519,53 @@ namespace UnityEngine.XR.iOS
 			}
 		}
 
+        void MenuSide()
+        {
+            Transform sidePos = planets[menuMemory].transform.Find("Left").GetComponent<Transform>();
+
+            Transform cameraPos = Camera.current.transform;
+
+            Transform left = planets[menuMemory].transform.Find("Left").GetComponent<Transform>();
+            Transform right = planets[menuMemory].transform.Find("Right").GetComponent<Transform>();
+            Transform front = planets[menuMemory].transform.Find("Front").GetComponent<Transform>();
+            Transform back = planets[menuMemory].transform.Find("Back").GetComponent<Transform>();
+
+            float leftDist = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((cameraPos.position.x - left.position.x), 2.0f)) + (Mathf.Pow((cameraPos.position.y - left.position.y), 2.0f)) + (Mathf.Pow((cameraPos.position.z - left.position.z), 2.0f))));
+            float rightDist = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((cameraPos.position.x - right.position.x), 2.0f)) + (Mathf.Pow((cameraPos.position.y - right.position.y), 2.0f)) + (Mathf.Pow((cameraPos.position.z - right.position.z), 2.0f))));
+            float frontDist = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((cameraPos.position.x - front.position.x), 2.0f)) + (Mathf.Pow((cameraPos.position.y - front.position.y), 2.0f)) + (Mathf.Pow((cameraPos.position.z - front.position.z), 2.0f))));
+            float backDist = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((cameraPos.position.x - back.position.x), 2.0f)) + (Mathf.Pow((cameraPos.position.y - back.position.y), 2.0f)) + (Mathf.Pow((cameraPos.position.z - back.position.z), 2.0f))));
+
+            if ((frontDist < backDist && frontDist < leftDist && frontDist < rightDist) || (backDist < frontDist && backDist < leftDist && backDist < rightDist))
+            {
+                if(leftDist < rightDist)
+                {
+                    sidePos = planets[menuMemory].transform.Find("Left").GetComponent<Transform>();
+                }
+                else
+                {
+                    sidePos = planets[menuMemory].transform.Find("Right").GetComponent<Transform>();
+                }
+            }
+            else if ((leftDist < backDist && leftDist < frontDist && leftDist < rightDist) || (rightDist < backDist && rightDist < frontDist && rightDist < leftDist))
+            {
+                if (frontDist < backDist)
+                {
+                    sidePos = planets[menuMemory].transform.Find("Front").GetComponent<Transform>();
+                }
+                else
+                {
+                    sidePos = planets[menuMemory].transform.Find("Back").GetComponent<Transform>();
+                }
+            }
+
+            planetMenu.transform.position = sidePos.position;
+            planetMenu.transform.LookAt(cameraPos);
+
+        }
+
 		void PlanetMenuUpdate(int i)
 		{
-			Transform position = planets[i].transform.Find("Left").GetComponent<Transform>();
-			planetMenu.transform.position = position.position;
+            //menuMemory = i;
 
 			planetMenu.SetActive(true);
 
@@ -597,21 +686,44 @@ namespace UnityEngine.XR.iOS
 
         void HealthSpread()
         {
-            
+            planetMenu.SetActive(false);
+
             planets[playerPlanetPosition].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
             planets[playerPlanetPosition].tag = "HealthyPlanet";
 
             healthyPlanets.Add(playerPlanetPosition);
 
             StartCoroutine("Health");
+
+
         }
 
         void HealthBomb()
         {
+            planetMenu.SetActive(false);
+
             bomb = (GameObject)Instantiate(bombPrefab);
 
-
             bomb.transform.position = planets[playerPlanetPosition].transform.position;
+
+            bomb.SetActive(true);
+
+            Collider bombCollider = bomb.GetComponent<Collider>();
+
+            int x = 0;
+
+            foreach(GameObject planet in planets)
+            {
+                Collider planetCollider = planet.GetComponent<Collider>();
+                if(bombCollider.bounds.Intersects(planetCollider.bounds))
+                {
+                    planets[x].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
+                    planets[x].transform.tag = "TempHealthyPlanet";
+                }
+                x++;
+            }
+
+            bomb.SetActive(false);
         }
 
 		void Win()
@@ -621,6 +733,8 @@ namespace UnityEngine.XR.iOS
 
 		void Update () 
 		{
+            
+
 			if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
 			{
 				var touch = Input.GetTouch(0);
@@ -660,6 +774,10 @@ namespace UnityEngine.XR.iOS
 
 						int number = ClosestPlanet(pos);
 
+                        menuMemory = number;
+
+                        MenuSide();
+
 						if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected")
 						{
 							if (touch.phase == TouchPhase.Began)
@@ -689,11 +807,13 @@ namespace UnityEngine.XR.iOS
 
 						if (hit.collider.tag == "Bomb")
 						{
+                            bigBomb -= 1;
                             HealthBomb();
 						}
 
                         if (hit.collider.tag == "HealthyLink")
                         {
+                            linkSolution -= 1;
                             HealthSpread();
                         }
 
