@@ -6,12 +6,17 @@ using UnityEngine.UI;
 
 namespace UnityEngine.XR.iOS
 {
-	public class Pause : MonoBehaviour {
+	public class Pause : MonoBehaviour 
+    {
 
+        [SerializeField] private GameObject instructionsScreen;
 		[SerializeField] private GameObject gameScreen;
 		[SerializeField] private GameObject pauseScreen;
 		[SerializeField] private GameObject gameOverScreen;
 		[SerializeField] private GameObject winScreen;
+
+        [SerializeField] private GameObject pageOne;
+        [SerializeField] private GameObject pageTwo;
 
 		[SerializeField] private GameObject world;
 		[SerializeField] private Text ingredientsText;
@@ -26,7 +31,10 @@ namespace UnityEngine.XR.iOS
 		{
 			Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
-			gameScreen.SetActive(true);
+            Time.timeScale = 0.0f;
+
+            instructionsScreen.SetActive(true);
+			gameScreen.SetActive(false);
 			pauseScreen.SetActive(false);
 			gameOverScreen.SetActive(false);
 			winScreen.SetActive(false);
@@ -38,6 +46,26 @@ namespace UnityEngine.XR.iOS
 			gameScreen.SetActive(true);
 			Time.timeScale = 1.0f;
 		}
+
+        public void ChangePage()
+        {
+            pageOne.SetActive(false);
+            pageTwo.SetActive(true);
+        }
+
+        public void StartGame()
+        {
+            pageOne.SetActive(true);
+            pageTwo.SetActive(false);
+
+            instructionsScreen.SetActive(false);
+            gameScreen.SetActive(true);
+            pauseScreen.SetActive(false);
+            winScreen.SetActive(false);
+            gameOverScreen.SetActive(false);
+
+            Time.timeScale = 1.0f;
+        }
 
 		public void PauseScreen()
 		{
@@ -54,6 +82,7 @@ namespace UnityEngine.XR.iOS
 
 		public void GameOverScreen()
 		{
+            instructionsScreen.SetActive(false);
 			gameScreen.SetActive(false);
 			pauseScreen.SetActive(false);
 			winScreen.SetActive(false);
@@ -62,6 +91,7 @@ namespace UnityEngine.XR.iOS
 
 		public void WinScreen()
 		{
+            instructionsScreen.SetActive(false);
 			gameScreen.SetActive(false);
 			pauseScreen.SetActive(false);
 			winScreen.SetActive(true);
@@ -98,7 +128,7 @@ namespace UnityEngine.XR.iOS
 
 		public void AddSolutionTwo()
 		{
-			if(ingredientsNumber >= 5)
+			if(ingredientsNumber >= 10)
 			{
 				world.GetComponent<WorldSpawn>().AddLinkSolution(1);
 				//ingredientsNumber -= 5;

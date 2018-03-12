@@ -302,7 +302,7 @@ namespace UnityEngine.XR.iOS
 		IEnumerator Virus()
 		{
 
-			yield return new WaitForSeconds(15.0f);
+			yield return new WaitForSeconds(10.0f);
 
 			outline.color = new Color(255,255,255,255);
 			alert.color = new Color(255,255,255,255);
@@ -343,7 +343,7 @@ namespace UnityEngine.XR.iOS
 
 				GameState(i);
 
-				yield return new WaitForSeconds(5.0f);
+				yield return new WaitForSeconds(8.0f);
 			}
 		}
 
