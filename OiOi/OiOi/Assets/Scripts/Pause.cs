@@ -132,7 +132,7 @@ namespace UnityEngine.XR.iOS
 			{
 				world.GetComponent<WorldSpawn>().AddLinkSolution(1);
 				//ingredientsNumber -= 5;
-				world.GetComponent<WorldSpawn>().SetIngredients(5);
+				world.GetComponent<WorldSpawn>().SetIngredients(10);
 
 				ingredientsNumber = world.GetComponent<WorldSpawn>().GetIngredientsNumber();
 				solutionOneNumber = world.GetComponent<WorldSpawn>().GetBomb();

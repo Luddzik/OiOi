@@ -32,6 +32,8 @@ namespace UnityEngine.XR.iOS
 		public LayerMask collisionLayer = 1 << 10;  //ARKitPlane layer
 
 		private bool worldSpawn = false;
+        private bool infectionStart = false;
+        private bool stop = false;
 
 		private Vector3[] playerMovePositions;
 		private GameObject[] planets;
@@ -56,6 +58,7 @@ namespace UnityEngine.XR.iOS
 
 		private List<int> infectedPlanets = new List<int>();
         private List<int> healthyPlanets = new List<int>();
+        private int availablePlanets = 1000;
 
         private int linkCount = 0;
 
@@ -116,7 +119,7 @@ namespace UnityEngine.XR.iOS
 
 		void PlanetsSpawn () 
 		{
-			int objectNumber = 10;
+			int objectNumber = 20;
 			planets = new GameObject[objectNumber];
 			playerMovePositions = new Vector3[objectNumber];
 
@@ -128,67 +131,133 @@ namespace UnityEngine.XR.iOS
 
 			resources = new int[objectNumber];
 
+            availablePlanets = objectNumber;
+
 			int i = 0;
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[0] = (GameObject) Instantiate(planet);
-			planets[0].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z + 1.0f);
+			planets[0].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z + 0.1f);
 			planets[0].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[1] = (GameObject) Instantiate(planet);
-			planets[1].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z - 1.0f);
+			planets[1].transform.position = new Vector3(m_HitTransform.position.x + 1.0f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z);
 			planets[1].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[2] = (GameObject) Instantiate(planet);
-			planets[2].transform.position = new Vector3(m_HitTransform.position.x + 1.0f, m_HitTransform.position.y + 1f, m_HitTransform.position.z + 0.5f);
+			planets[2].transform.position = new Vector3(m_HitTransform.position.x + 0.5f, m_HitTransform.position.y + 1f, m_HitTransform.position.z + 0.5f);
 			planets[2].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[3] = (GameObject) Instantiate(planet);
-			planets[3].transform.position = new Vector3(m_HitTransform.position.x - 1.0f, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z - 0.2f);
+			planets[3].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z + 1.0f);
 			planets[3].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[4] = (GameObject) Instantiate(planet);
-			planets[4].transform.position = new Vector3(m_HitTransform.position.x + 0.1f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z);
+			planets[4].transform.position = new Vector3(m_HitTransform.position.x - 0.5f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z - 0.5f);
 			planets[4].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[5] = (GameObject) Instantiate(planet);
-			planets[5].transform.position = new Vector3(m_HitTransform.position.x + 0.5f, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z - 1.0f);
+			planets[5].transform.position = new Vector3(m_HitTransform.position.x - 1.0f, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z);
 			planets[5].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[6] = (GameObject) Instantiate(planet);
-			planets[6].transform.position = new Vector3(m_HitTransform.position.x - 0.5f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z + 1.0f);
+			planets[6].transform.position = new Vector3(m_HitTransform.position.x - 0.5f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z + 0.5f);
 			planets[6].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[7] = (GameObject) Instantiate(planet);
-			planets[7].transform.position = new Vector3(m_HitTransform.position.x + 0.5f, m_HitTransform.position.y + 1f, m_HitTransform.position.z + 1.5f);
+			planets[7].transform.position = new Vector3(m_HitTransform.position.x + 0.5f, m_HitTransform.position.y + 1f, m_HitTransform.position.z - 0.5f);
 			planets[7].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[8] = (GameObject) Instantiate(planet);
-			planets[8].transform.position = new Vector3(m_HitTransform.position.x + 1.0f, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z + 0.8f);
+			planets[8].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z - 1.0f);
 			planets[8].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
 
 			i = Random.Range(0, planetMaterial.Length);
 
 			planets[9] = (GameObject) Instantiate(planet);
-			planets[9].transform.position = new Vector3(m_HitTransform.position.x + 0.2f, m_HitTransform.position.y + 0.5f, m_HitTransform.position.z);
+			planets[9].transform.position = new Vector3(m_HitTransform.position.x + 2.0f, m_HitTransform.position.y + 0.5f, m_HitTransform.position.z);
 			planets[9].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+
+            // 10 ----
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[10] = (GameObject)Instantiate(planet);
+            planets[10].transform.position = new Vector3(m_HitTransform.position.x + 1.5f, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z + 1.5f);
+            planets[10].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[11] = (GameObject)Instantiate(planet);
+            planets[11].transform.position = new Vector3(m_HitTransform.position.x + 1.0f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z + 1.0f);
+            planets[11].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[12] = (GameObject)Instantiate(planet);
+            planets[12].transform.position = new Vector3(m_HitTransform.position.x - 1.5f, m_HitTransform.position.y + 1f, m_HitTransform.position.z - 1.5f);
+            planets[12].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[13] = (GameObject)Instantiate(planet);
+            planets[13].transform.position = new Vector3(m_HitTransform.position.x - 1.0f, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z - 1.0f);
+            planets[13].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[14] = (GameObject)Instantiate(planet);
+            planets[14].transform.position = new Vector3(m_HitTransform.position.x + 1.5f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z - 1.5f);
+            planets[14].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[15] = (GameObject)Instantiate(planet);
+            planets[15].transform.position = new Vector3(m_HitTransform.position.x + 1.0f, m_HitTransform.position.y + 1.5f, m_HitTransform.position.z - 1.0f);
+            planets[15].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[16] = (GameObject)Instantiate(planet);
+            planets[16].transform.position = new Vector3(m_HitTransform.position.x - 1.5f, m_HitTransform.position.y + 1.2f, m_HitTransform.position.z + 1.5f);
+            planets[16].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[17] = (GameObject)Instantiate(planet);
+            planets[17].transform.position = new Vector3(m_HitTransform.position.x -1.0f, m_HitTransform.position.y + 1f, m_HitTransform.position.z + 1.0f);
+            planets[17].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[18] = (GameObject)Instantiate(planet);
+            planets[18].transform.position = new Vector3(m_HitTransform.position.x, m_HitTransform.position.y + 0.9f, m_HitTransform.position.z - 2.0f);
+            planets[18].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
+            i = Random.Range(0, planetMaterial.Length);
+
+            planets[19] = (GameObject)Instantiate(planet);
+            planets[19].transform.position = new Vector3(m_HitTransform.position.x + 0.1f, m_HitTransform.position.y + 2.5f, m_HitTransform.position.z);
+            planets[19].GetComponent<Renderer>().material = new Material(planetMaterial[i]);
+
 
 			i = 0;
 
@@ -291,17 +360,20 @@ namespace UnityEngine.XR.iOS
 				counter = 0;
 			}
 
-            if(planets[nextPlanet].transform.tag != "Planet")
+            if(planets[nextPlanet].tag != "Planet")
             {
                 nextPlanet = SpreadPlanet();
             }
-
 			return nextPlanet;
 		}
 
+        void VirusStop()
+        {
+            StopCoroutine("Virus");
+        }
+
 		IEnumerator Virus()
 		{
-
 			yield return new WaitForSeconds(10.0f);
 
 			outline.color = new Color(255,255,255,255);
@@ -309,7 +381,11 @@ namespace UnityEngine.XR.iOS
 
 			yield return new WaitForSeconds(5.0f);
 
+            infectionStart = true;
+
 			int infPlanet = GetRandomPlanet();
+
+            availablePlanets -= 1;
 
 			planets[infPlanet].GetComponent<Renderer>().material = new Material(virusMaterial);
 			planets[infPlanet].tag = "Infected";
@@ -323,27 +399,31 @@ namespace UnityEngine.XR.iOS
 			outline.color = new Color(255,255,255,0);
 			alert.color = new Color(255,255,255,0);
 
-			yield return new WaitForSeconds(8.0f);
+			yield return new WaitForSeconds(6.0f);
 
-			while(worldSpawn)
+            while(worldSpawn)
 			{
-                if (infectedPlanets.Count == 0)
+                if (availablePlanets == 0)
                 {
-                    Win();
+                    VirusStop();
                 }
+                else 
+                {
+                    int i = SpreadPlanet();
 
-				int i = SpreadPlanet();
+                    LinkSpread(i);
 
-				LinkSpread(i);
+                    planets[i].GetComponent<Renderer>().material = new Material(virusMaterial);
+                    planets[i].tag = "Infected";
 
-				planets[i].GetComponent<Renderer>().material = new Material(virusMaterial);
-				planets[i].tag = "Infected";
+                    infectedPlanets.Add(i);
 
-				infectedPlanets.Add(i);
+                    GameState(i);
 
-				GameState(i);
 
-				yield return new WaitForSeconds(8.0f);
+                    yield return new WaitForSeconds(8.0f);
+                }
+				
 			}
 		}
 
@@ -382,9 +462,12 @@ namespace UnityEngine.XR.iOS
 
                 if (planets[i].tag == "Infected")
                 {
+                    availablePlanets += 1;
                     infectedPlanets.Remove(i);
                     RemoveInfectedLink(i);
                 }
+
+                availablePlanets -= 1;
 
                 planets[i].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
                 planets[i].tag = "HealthyPlanet";
@@ -400,7 +483,6 @@ namespace UnityEngine.XR.iOS
 
                 yield return new WaitForSeconds(5.0f);
             } 
-
         }
 
         void StopLink()
@@ -517,6 +599,10 @@ namespace UnityEngine.XR.iOS
 			{
 				gameManager.GetComponent<Pause>().GameOverScreen();
 			}
+            if (infectedPlanets.Count <= 0 && infectionStart)
+            {
+                Win();
+            }
 		}
 
         void MenuSide()
@@ -694,8 +780,6 @@ namespace UnityEngine.XR.iOS
             healthyPlanets.Add(playerPlanetPosition);
 
             StartCoroutine("Health");
-
-
         }
 
         void HealthBomb()
@@ -717,8 +801,13 @@ namespace UnityEngine.XR.iOS
                 Collider planetCollider = planet.GetComponent<Collider>();
                 if(bombCollider.bounds.Intersects(planetCollider.bounds))
                 {
+                    if (planets[x].tag == "Infected")
+                    {
+                        infectedPlanets.Remove(x);
+                        RemoveInfectedLink(x);
+                    }
                     planets[x].GetComponent<Renderer>().material = new Material(healthyPlanetMaterial);
-                    planets[x].transform.tag = "TempHealthyPlanet";
+                    planets[x].tag = "TempHealthyPlanet";
                 }
                 x++;
             }
@@ -733,8 +822,6 @@ namespace UnityEngine.XR.iOS
 
 		void Update () 
 		{
-            
-
 			if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
 			{
 				var touch = Input.GetTouch(0);
@@ -778,7 +865,7 @@ namespace UnityEngine.XR.iOS
 
                         MenuSide();
 
-						if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected")
+                        if (hit.collider.tag == "Planet" || hit.collider.tag == "Infected" || hit.collider.tag == "HealthyPlanet" || hit.collider.tag == "TempHealthyPlanet")
 						{
 							if (touch.phase == TouchPhase.Began)
 							{
@@ -836,7 +923,5 @@ namespace UnityEngine.XR.iOS
 			}
 
 		}
-
-
 	}
 }
