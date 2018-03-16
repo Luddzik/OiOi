@@ -742,7 +742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &481742512
 Transform:
   m_ObjectHideFlags: 0
@@ -847,7 +847,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: AddSolutionTwo
         m_Mode: 1
         m_Arguments:
@@ -1037,7 +1037,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: GameScreen
         m_Mode: 1
         m_Arguments:
@@ -1222,20 +1222,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 822611394}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7374becb63b44eb2b058aec965e1ec7, type: 3}
+  m_Script: {fileID: 11500000, guid: cf06d5c5df74145deb5759a947a7eefc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instructionsScreen: {fileID: 1428472082}
-  gameScreen: {fileID: 1814926129}
-  pauseScreen: {fileID: 1557297723}
-  gameOverScreen: {fileID: 29959611}
-  winScreen: {fileID: 1667559388}
-  pageOne: {fileID: 1065920622}
-  pageTwo: {fileID: 993448267}
-  world: {fileID: 1052679867}
-  ingredientsText: {fileID: 1809302428}
-  solutionOneText: {fileID: 1008614375}
-  solutionTwoText: {fileID: 170516643}
+  spawn: {fileID: 1052679867}
 --- !u!4 &822611396
 Transform:
   m_ObjectHideFlags: 0
@@ -1325,7 +1315,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: ReturnMainMenu
         m_Mode: 1
         m_Arguments:
@@ -1447,7 +1437,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: Restart
         m_Mode: 1
         m_Arguments:
@@ -1643,7 +1633,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: Restart
         m_Mode: 1
         m_Arguments:
@@ -1948,7 +1938,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: AddSolutionOne
         m_Mode: 1
         m_Arguments:
@@ -2074,7 +2064,7 @@ Transform:
   m_GameObject: {fileID: 1052679867}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.1, z: 1}
+  m_LocalScale: {x: 1, y: 0.3, z: 1}
   m_Children: []
   m_Father: {fileID: 1286139108}
   m_RootOrder: 0
@@ -2087,30 +2077,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1052679867}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66af4862a56464e4ebfeb9706ba5c31a, type: 3}
+  m_Script: {fileID: 11500000, guid: 08d07767a58b7414c923cc46ff4121bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planet: {fileID: 1337486012435814, guid: 76641e123f07a43d5824a6c04dc6db0c, type: 2}
+  planetPrefab:
+  - {fileID: 1337486012435814, guid: 76641e123f07a43d5824a6c04dc6db0c, type: 2}
+  - {fileID: 1367981487395352, guid: dbbb12cd5c5ba47a3be7617ec37487ad, type: 2}
+  - {fileID: 1901988509899300, guid: f32bd830bd8ae4e2d8ac7169079a2cf6, type: 2}
+  - {fileID: 1528654261951906, guid: 470dca03b44504ab5a4e96173b5ce1ff, type: 2}
+  - {fileID: 1902612903155670, guid: 12528de311e114ed0a4cef999ee6af0a, type: 2}
+  - {fileID: 1410238728658780, guid: 011a23199acb9494690e41b2cb736cd5, type: 2}
   planetMaterial:
   - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  virusMaterial: {fileID: 2100000, guid: f83ff01db9b95410b9def3d90d982ff1, type: 2}
-  healthyPlanetMaterial: {fileID: 2100000, guid: f12c757cf35d0412d89f076888e1b12a,
-    type: 2}
-  playerPref: {fileID: 1994508037321940, guid: 46182ff200b764cc6b1108e5b519a052, type: 2}
-  connectionPrefab: {fileID: 1355427721063638, guid: 5004595047e7c43239b396b4d5c38452,
-    type: 2}
-  healthyConnectionPrefab: {fileID: 1755790790273496, guid: 700b7a99608084d6ebc48bc19b6093ef,
-    type: 2}
-  bombPrefab: {fileID: 1982672774675678, guid: a20dcbf490aec4374aba0b56b12b3bdb, type: 2}
-  outline: {fileID: 283509404}
-  alert: {fileID: 1712308353}
+  - {fileID: 2100000, guid: 1e42d4fdafbf34607b5abb3c22ad0a1d, type: 2}
+  - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
   gameManager: {fileID: 822611394}
-  planetMenuPrefab: {fileID: 1223863053206476, guid: daa4af2dcbce747d8aeff80da0b847be,
-    type: 2}
   m_HitTransform: {fileID: 1286139108}
   maxRayDistance: 30
   collisionLayer:
@@ -2422,7 +2403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1308259103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2525,7 +2506,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: Restart
         m_Mode: 1
         m_Arguments:
@@ -2647,7 +2628,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: PauseScreen
         m_Mode: 1
         m_Arguments:
@@ -2952,7 +2933,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: ChangePage
         m_Mode: 1
         m_Arguments:
@@ -3015,7 +2996,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1485722334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3172,7 +3153,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: ReturnMainMenu
         m_Mode: 1
         m_Arguments:
@@ -3570,7 +3551,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: ReturnMainMenu
         m_Mode: 1
         m_Arguments:
@@ -3950,7 +3931,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 822611395}
+      - m_Target: {fileID: 0}
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
