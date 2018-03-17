@@ -10,9 +10,16 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject[] planetPrefab;
         [SerializeField] private Material[] planetMaterial;
 
+        [SerializeField] private GameObject pathPrefab;
+        [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private GameObject gameManager;
 
         private GameObject[] planet;
+        private GameObject[] path;
+
+        private int[] ability;
+
+        private GameObject projectile;
         private bool worldSpawn = false;
 
         public Transform m_HitTransform;
@@ -44,6 +51,108 @@ namespace UnityEngine.XR.iOS
             planet[i].transform.localScale = growth;
         }
 
+        public void SetPlanetGood(int i)
+        {
+            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
+        }
+
+        public void SetPlanetWarning (int i)
+        {
+            //Test Out
+            //planet[i].GetComponent<Renderer>().material.Lerp(planetMaterial[0], planetMaterial[1], 2.0f);
+            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[1]);
+        }
+
+        public void SetPlanetBad(int i)
+        {
+            //Test Out
+            //planet[i].GetComponent<Renderer>().material.Lerp(planetMaterial[1], planetMaterial[2], 2.0f);
+            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[2]);
+        }
+
+        public void SetProjectileStatus(bool status)
+        {
+            projectile.SetActive(status);
+        }
+
+        public void SetProjectileLocation(Vector3 pos)
+        {
+            projectile.transform.position = new Vector3(pos.x, pos.y, pos.z);
+        }
+
+        public Vector3 GetProjectileLocation()
+        {
+            return projectile.transform.position;
+        }
+
+        public void CreatePath(int start, int end)
+        {
+            Vector3 startLoc = planet[start].transform.position;
+            Vector3 endLoc = planet[end].transform.position;
+
+            Vector3 between = (startLoc - endLoc) / 10.0f;
+
+            for (int i = 0; i < path.Length; i++)
+            {
+                Vector3 pos = startLoc - (between * (i+1));
+                path[i].transform.position = new Vector3(pos.x, pos.y, pos.z);
+                //path[i].SetActive(true);
+            }
+        }
+
+        public void ActivatePath(int i)
+        {
+            path[i].SetActive(true);
+        }
+
+        public void DeactivatePath()
+        {
+            for (int i = 0; i < path.Length; i++)
+            {
+                path[i].SetActive(false);
+            }
+        }
+
+        public void RefreshAbilities()
+        {
+            for (int i = 0; i < ability.Length; i++)
+            {
+                int x = Random.Range(0, 4);
+
+                if (planet[i].tag == "Planet" || planet[i].tag == "Shielded")
+                {
+                    ability[i] = x;
+                }
+                else
+                {
+                    ability[i] = 0;
+                }
+            }
+        }
+
+        public void NewAbility(int i)
+        {
+            int x = Random.Range(0, 4);
+            if (planet[i].tag == "Planet" || planet[i].tag == "Shielded")
+            {
+                ability[i] = x;
+            }
+            else
+            {
+                ability[i] = 0;
+            }
+        }
+
+        public void RemoveAbility(int i)
+        {
+            ability[i] = 0;
+        }
+
+        public int GetAbility(int i)
+        {
+            return ability[i];
+        }
+
         bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes)
         {
             List<ARHitTestResult> hitResults = UnityARSessionNativeInterface.GetARSessionNativeInterface().HitTest(point, resultTypes);
@@ -73,6 +182,19 @@ namespace UnityEngine.XR.iOS
         {
             int objectNumber = 10;
             planet = new GameObject[objectNumber];
+            path = new GameObject[10];
+            ability = new int[10];
+
+            projectile = (GameObject)Instantiate(projectilePrefab);
+            projectile.transform.position = new Vector3(0, 0, 0);
+            projectile.SetActive(false);
+
+            for (int i = 0; i < path.Length; i++)
+            {
+                path[i] = (GameObject)Instantiate(pathPrefab);
+                path[i].transform.position = new Vector3(0, 0, 0);
+                path[i].SetActive(false);
+            }
 
             int x;
 
@@ -147,6 +269,27 @@ namespace UnityEngine.XR.iOS
             planet[9].SetActive(false);
         }
 
+        int ClosestPlanet(Vector3 pos)
+        {
+            int planetReturn = 0;
+            float result = 100.0f;
+            int counter = 0;
+            float temp;
+
+            foreach (GameObject pl in planet)
+            {
+                temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((pos.x - pl.transform.position.x), 2.0f)) + (Mathf.Pow((pos.y - pl.transform.position.y), 2.0f)) + (Mathf.Pow((pos.z - pl.transform.position.z), 2.0f))));
+                if (temp < result)
+                {
+                    result = temp;
+                    planetReturn = counter;
+                }
+                counter++;
+            }
+
+            return planetReturn;
+        }
+
         void Update()
         {
             if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
@@ -170,7 +313,7 @@ namespace UnityEngine.XR.iOS
                         // if you want to use infinite planes use this:
                         ARHitTestResultType.ARHitTestResultTypeExistingPlane,
                         ARHitTestResultType.ARHitTestResultTypeHorizontalPlane, 
-                        ARHitTestResultType.ARHitTestResultTypeFeaturePoint
+                        //ARHitTestResultType.ARHitTestResultTypeFeaturePoint
                     };
 
                     foreach (ARHitTestResultType resultType in resultTypes)
@@ -181,7 +324,19 @@ namespace UnityEngine.XR.iOS
                         }
                     }
 
+                    RaycastHit hit;
 
+                    if (Physics.Raycast(ray, out hit, 1.0f))
+                    {
+                        Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
+
+                        int number = ClosestPlanet(pos);
+
+                        if(hit.collider.tag == "Projectile")
+                        {
+                            gameManager.GetComponent<GameManager>().TutorialProjectile();
+                        }
+                    }
                 }
             }
 
