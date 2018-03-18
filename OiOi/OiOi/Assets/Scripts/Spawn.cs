@@ -19,16 +19,23 @@ namespace UnityEngine.XR.iOS
 
         private int[] ability;
 
-        private GameObject projectile;
+        private GameObject[] projectile;
         private bool worldSpawn = false;
+
+        private int oneOff = 0;
 
         public Transform m_HitTransform;
         public float maxRayDistance = 30.0f;
         public LayerMask collisionLayer = 1 << 10;  //ARKitPlane layer
 
-        public void SetPlanetStatus (int i, bool status)
+		public void SetPlanetStatus (int i, bool status)
         {
             planet[i].SetActive(status);
+        }
+
+        public string GetPlanetHealth(int i)
+        {
+            return planet[i].transform.tag;
         }
 
         public Vector3 GetPlanetTransform (int i)
@@ -54,6 +61,14 @@ namespace UnityEngine.XR.iOS
         public void SetPlanetGood(int i)
         {
             planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
+            planet[i].transform.tag = "Planet";
+            planet[i].GetComponent<AudioSource>().Stop();
+
+            bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(i);
+            if (b)
+            {
+                gameManager.GetComponent<GameManager>().RemoveInfected(i);
+            }
         }
 
         public void SetPlanetWarning (int i)
@@ -68,31 +83,46 @@ namespace UnityEngine.XR.iOS
             //Test Out
             //planet[i].GetComponent<Renderer>().material.Lerp(planetMaterial[1], planetMaterial[2], 2.0f);
             planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[2]);
+            planet[i].transform.tag = "Infected";
+            planet[i].GetComponent<AudioSource>().Play();
+
+            gameManager.GetComponent<GameManager>().AddInfected(i);
+            
         }
 
-        public void SetProjectileStatus(bool status)
+        public void SetProjectileStatus(int i, bool status)
         {
-            projectile.SetActive(status);
+            projectile[i].SetActive(status);
         }
 
-        public void SetProjectileLocation(Vector3 pos)
+        public void ProjectileSound(int i)
         {
-            projectile.transform.position = new Vector3(pos.x, pos.y, pos.z);
+            projectile[i].GetComponent<AudioSource>().Play();
         }
 
-        public Vector3 GetProjectileLocation()
+        public bool GetProjectileStatus(int i)
         {
-            return projectile.transform.position;
+            return projectile[i].activeSelf;
         }
 
-        public void CreatePath(int start, int end)
+        public void SetProjectileLocation(int i, Vector3 pos)
+        {
+            projectile[i].transform.position = new Vector3(pos.x, pos.y, pos.z);
+        }
+
+        public Vector3 GetProjectileLocation(int i)
+        {
+            return projectile[i].transform.position;
+        }
+
+        public void CreatePath(int n, int start, int end)
         {
             Vector3 startLoc = planet[start].transform.position;
             Vector3 endLoc = planet[end].transform.position;
 
             Vector3 between = (startLoc - endLoc) / 10.0f;
 
-            for (int i = 0; i < path.Length; i++)
+            for (int i = (n * 10); i < (n * 10) + 10; i++)
             {
                 Vector3 pos = startLoc - (between * (i+1));
                 path[i].transform.position = new Vector3(pos.x, pos.y, pos.z);
@@ -105,9 +135,9 @@ namespace UnityEngine.XR.iOS
             path[i].SetActive(true);
         }
 
-        public void DeactivatePath()
+        public void DeactivatePath(int n)
         {
-            for (int i = 0; i < path.Length; i++)
+            for (int i = (n * 10); i < (n * 10) + 10; i++)
             {
                 path[i].SetActive(false);
             }
@@ -133,7 +163,7 @@ namespace UnityEngine.XR.iOS
         public void NewAbility(int i)
         {
             int x = Random.Range(0, 4);
-            if (planet[i].tag == "Planet" || planet[i].tag == "Shielded")
+            if (planet[i].transform.tag == "Planet" || planet[i].transform.tag == "Shielded")
             {
                 ability[i] = x;
             }
@@ -151,6 +181,53 @@ namespace UnityEngine.XR.iOS
         public int GetAbility(int i)
         {
             return ability[i];
+        }
+
+        public int Spread(int i)
+        {
+            int choice = 0;
+            int[] ans = new int[3];
+            int a = 0, b = 0, c = 0;
+            float x = 100.0f;
+            float y = 100.0f;
+            float z = 100.0f;
+
+            float planetDistance;
+
+            int counter = 0;
+
+            foreach (GameObject place in planet)
+            {
+                if (place.transform.tag == "Planet")
+                {
+                    planetDistance = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((planet[i].transform.position.x - place.transform.position.x), 2.0f)) + (Mathf.Pow((planet[i].transform.position.y - place.transform.position.y), 2.0f)) + (Mathf.Pow((planet[i].transform.position.z - place.transform.position.z), 2.0f))));
+
+                    if(planetDistance < x)
+                    {
+                        x = planetDistance;
+                        a = counter;
+                    }
+                    else if(planetDistance < y)
+                    {
+                        y = planetDistance;
+                        b = counter;
+                    }
+                    else if(planetDistance < z)
+                    {
+                        z = planetDistance;
+                        c = counter;
+                    }
+                }
+                counter++;
+            }
+
+            ans[0] = a;
+            ans[1] = b;
+            ans[2] = c;
+
+            choice = ans[Random.Range(0, ans.Length)];
+
+            return choice;
         }
 
         bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes)
@@ -182,12 +259,17 @@ namespace UnityEngine.XR.iOS
         {
             int objectNumber = 10;
             planet = new GameObject[objectNumber];
-            path = new GameObject[10];
+            path = new GameObject[60];
             ability = new int[10];
+            projectile = new GameObject[5];
 
-            projectile = (GameObject)Instantiate(projectilePrefab);
-            projectile.transform.position = new Vector3(0, 0, 0);
-            projectile.SetActive(false);
+            for (int i = 0; i < 5; i++)
+            {
+                projectile[i] = (GameObject)Instantiate(projectilePrefab);
+                projectile[i].transform.position = new Vector3(0, 0, 0);
+                projectile[i].SetActive(false);
+            }
+
 
             for (int i = 0; i < path.Length; i++)
             {
@@ -269,7 +351,7 @@ namespace UnityEngine.XR.iOS
             planet[9].SetActive(false);
         }
 
-        int ClosestPlanet(Vector3 pos)
+        int PlanetClicked(Vector3 pos)
         {
             int planetReturn = 0;
             float result = 100.0f;
@@ -288,6 +370,27 @@ namespace UnityEngine.XR.iOS
             }
 
             return planetReturn;
+        }
+
+        int ProjectileClicked(Vector3 pos)
+        {
+            int projReturn = 0;
+            float result = 100.0f;
+            int counter = 0;
+            float temp;
+
+            foreach (GameObject pl in projectile)
+            {
+                temp = Mathf.Abs(Mathf.Sqrt((Mathf.Pow((pos.x - pl.transform.position.x), 2.0f)) + (Mathf.Pow((pos.y - pl.transform.position.y), 2.0f)) + (Mathf.Pow((pos.z - pl.transform.position.z), 2.0f))));
+                if (temp < result)
+                {
+                    result = temp;
+                    projReturn = counter;
+                }
+                counter++;
+            }
+
+            return projReturn;
         }
 
         void Update()
@@ -330,11 +433,22 @@ namespace UnityEngine.XR.iOS
                     {
                         Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
 
-                        int number = ClosestPlanet(pos);
+                        int number = PlanetClicked(pos);
+                        int o = ProjectileClicked(pos);
 
                         if(hit.collider.tag == "Projectile")
                         {
-                            gameManager.GetComponent<GameManager>().TutorialProjectile();
+                            if (oneOff == 0)
+                            {
+                                gameManager.GetComponent<GameManager>().TutorialProjectile();
+                                oneOff++;
+                            }
+                            else
+                            {
+                                gameManager.GetComponent<GameManager>().ProjectileDeactivated(o);
+                            }
+                                
+
                         }
                     }
                 }

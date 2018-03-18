@@ -1,9 +1,10 @@
 ﻿<Properties StartupConfiguration="{4EE6C158-CE0C-D976-B017-96FAE5FDBDB1}|">
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameManager.cs">
     <Files>
-      <File FileName="Assets/Scripts/WorldSpawn.cs" Line="862" Column="29" />
-      <File FileName="Assets/Scripts/Spawn.cs" Line="123" Column="18" />
-      <File FileName="Assets/Scripts/GameManager.cs" Line="195" Column="55" />
+      <File FileName="Assets/Scripts/WorldSpawn.cs" Line="62" Column="9" />
+      <File FileName="Assets/Scripts/Spawn.cs" Line="264" Column="44" />
+      <File FileName="Assets/Scripts/GameManager.cs" Line="294" Column="17" />
+      <File FileName="Assets/Scripts/Interface.cs" Line="24" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
