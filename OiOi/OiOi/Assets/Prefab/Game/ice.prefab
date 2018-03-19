@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 64200994164682422}
   - component: {fileID: 95455714937714388}
   - component: {fileID: 82927080642184344}
+  - component: {fileID: 135382946597374654}
   m_Layer: 0
   m_Name: ice
   m_TagString: Planet
@@ -203,3 +204,15 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!135 &135382946597374654
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1528654261951906}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 6.3
+  m_Center: {x: 0, y: 0, z: 0}

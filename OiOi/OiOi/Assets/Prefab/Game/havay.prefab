@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 64144289761637398}
   - component: {fileID: 95117338480745936}
   - component: {fileID: 82963408479388068}
+  - component: {fileID: 135128874228466404}
   m_Layer: 0
   m_Name: havay
   m_TagString: Planet
@@ -203,3 +204,15 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!135 &135128874228466404
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1901988509899300}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 5
+  m_Center: {x: -0.7, y: 0, z: -0.5}

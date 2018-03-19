@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 23756515946105546}
   - component: {fileID: 95907092845544864}
   - component: {fileID: 82139004535483298}
+  - component: {fileID: 135434693904640112}
   m_Layer: 0
   m_Name: egipt
   m_TagString: Planet
@@ -188,3 +189,15 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!135 &135434693904640112
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1337486012435814}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 4.2
+  m_Center: {x: 0, y: 0, z: 0}

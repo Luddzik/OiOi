@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UnityEngine.XR.iOS
 {
@@ -8,6 +9,11 @@ namespace UnityEngine.XR.iOS
     {
         [SerializeField] private GameObject spawn;
         [SerializeField] private GameObject ui;
+
+        // Momentery fields - to be deleted once tested
+        [SerializeField] private Text abilityOne;
+        [SerializeField] private Text abilityTwo;
+        [SerializeField] private Text abilityThree;
 
         private List<int> infectedPlanets  = new List<int>();
 
@@ -20,14 +26,22 @@ namespace UnityEngine.XR.iOS
 
         private int bombAbility = 0;
 
+        private int t; // planet variable
         private int shieldAbility = 0;
+        private bool waitForPress;
         private bool shieldActive = false;
+        private bool shieldActived = false;
 
         private bool tutorialClick = false;
         private int nextInfection = 0;
 
         IEnumerator GameSequence()
         {
+            spawn.GetComponent<Spawn>().RefreshAbilities();
+            abilityOne.text = slowTimeAbility.ToString();
+            abilityTwo.text = bombAbility.ToString();
+            abilityThree.text = shieldAbility.ToString();
+
             // First planet introduction
 
             Transform spawnLoc = spawn.GetComponent<Spawn>().m_HitTransform;
@@ -207,6 +221,9 @@ namespace UnityEngine.XR.iOS
 
             tutorialClick = false;
 
+            ui.GetComponent<Interface>().TutorialDeactivate();
+            ui.GetComponent<Interface>().AbilitiesScreenON();
+
             yield return new WaitForSeconds(2.0f);
 
             // Text to Ingredients
@@ -341,7 +358,10 @@ namespace UnityEngine.XR.iOS
 
                         if (Vector3.Distance(stPlanet[q], edPlanet[q]) <= (between[q] / 10))
                         {
-                            spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
+                            if (spawn.GetComponent<Spawn>().GetPlanetHealth(nextInfection) == "Planet")
+                            {
+                                spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
+                            }
                             InfectedProjectileDeactivate(q);
                         }
 
@@ -400,19 +420,133 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
-            if(slowActive)
+            if(slowTimeAbility > 0)
             {
-                StopCoroutine("TimeSlow");
+                if (slowActive)
+                {
+                    StopCoroutine("TimeSlow");
+                }
+
+                slowTimeAbility -= 1;
+                RefreshAbilityText();
+
+                StartCoroutine("TimeSlow");
             }
-            StartCoroutine("TimeSlow");
+
+        }
+
+        public void ShieldAbility()
+        {
+            if(shieldActive)
+            {
+                shieldActive = false;
+                StopCoroutine("ShieldPlanet");
+
+                if(!shieldActived)
+                {
+                    shieldAbility += 1;
+                    RefreshAbilityText();  
+                }
+            }
+            else
+            {
+                shieldActive = true;
+                waitForPress = false;
+
+
+                shieldAbility -= 1;
+                RefreshAbilityText();
+                StartCoroutine("ShieldPlanet");
+            }
+
+        }
+
+        public void ShieldPress(bool p, int i)
+        {
+            shieldActived = p;
+
+            if(p)
+            {
+                t = i;  
+            }
+
+            ButtonPressed();
+        }
+
+        public void AddTimeAbility()
+        {
+            slowTimeAbility += 1;
+            RefreshAbilityText();
+        }
+
+        public void AddBombAbility()
+        {
+            bombAbility += 1;
+            RefreshAbilityText();
+        }
+
+        public void AddShieldAbility()
+        {
+            shieldAbility += 1;
+            RefreshAbilityText();
+        }
+
+        public bool IsShieldActive()
+        {
+            return shieldActive;
+        }
+
+        public bool IsShielded()
+        {
+            return shieldActived;
+        }
+
+        public void BombAbilityUse()
+        {
+            spawn.GetComponent<Spawn>().BombAbility();
+        }
+
+        // TO BE DELETED
+        public void RefreshAbilityText()
+        {
+            abilityOne.text = slowTimeAbility.ToString();
+            abilityTwo.text = bombAbility.ToString();
+            abilityThree.text = shieldAbility.ToString();
         }
 
         IEnumerator TimeSlow()
         {
             slowActive = true;
-            Time.timeScale = 0.4f;
+            Time.timeScale = 0.2f;
             yield return new WaitForSeconds(5.0f);
             Time.timeScale = 1.0f;
+        }
+
+        IEnumerator ShieldPlanet()
+        {
+            yield return new WaitForSeconds(0.5f);
+ 
+            yield return new WaitUntil(ButtonPressed);
+            if (shieldActived)
+            {
+                spawn.GetComponent<Spawn>().SetPlanetShield(t);
+                yield return new WaitForSeconds(5.0f);
+            }
+            else 
+            {
+                ShieldAbility();
+            }
+
+            spawn.GetComponent<Spawn>().SetPlanetGood(t);
+            shieldActived = false;
+
+        }
+
+        bool ButtonPressed()
+        {
+            waitForPress = true;
+
+            return waitForPress;
         }
 
         void InfectedProjectileDeactivate(int i)

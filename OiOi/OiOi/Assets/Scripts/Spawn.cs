@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 //using UnityEditor.UI;
+using UnityEngine.EventSystems;
 
 namespace UnityEngine.XR.iOS
 {
@@ -10,6 +11,7 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject[] planetPrefab;
         [SerializeField] private Material[] planetMaterial;
 
+        [SerializeField] private GameObject bombPrefab;
         [SerializeField] private GameObject pathPrefab;
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private GameObject gameManager;
@@ -21,6 +23,8 @@ namespace UnityEngine.XR.iOS
         private GameObject[] path;
 
         private int[] ability;
+        private bool shieldButtonPress;
+        private GameObject bomb;
 
         private GameObject[] projectile;
         private bool worldSpawn = false;
@@ -77,6 +81,12 @@ namespace UnityEngine.XR.iOS
             }
         }
 
+        public void SetPlanetShield(int i)
+        {
+            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
+            planet[i].transform.tag = "Shielded";
+        }
+
         public void SetPlanetWarning (int i)
         {
             //Test Out
@@ -94,6 +104,8 @@ namespace UnityEngine.XR.iOS
             planet[i].GetComponent<AudioSource>().Stop();
             planet[i].GetComponent<AudioSource>().clip = badSFX;
             planet[i].GetComponent<AudioSource>().Play();
+
+            ability[i] = 0;
 
             gameManager.GetComponent<GameManager>().AddInfected(i);
             
@@ -164,7 +176,7 @@ namespace UnityEngine.XR.iOS
                 }
                 else
                 {
-                    ability[i] = 0;
+                    ability[i] = 4;
                 }
             }
         }
@@ -178,7 +190,7 @@ namespace UnityEngine.XR.iOS
             }
             else
             {
-                ability[i] = 0;
+                ability[i] = 4;
             }
         }
 
@@ -237,6 +249,35 @@ namespace UnityEngine.XR.iOS
             choice = ans[Random.Range(0, ans.Length)];
 
             return choice;
+        }
+
+        public void BombAbility()
+        {
+            bomb = (GameObject)Instantiate(bombPrefab);
+
+            bomb.transform.position = Camera.current.transform.position;
+
+            bomb.SetActive(true);
+
+            Collider bombCollider = bomb.GetComponent<Collider>();
+
+            int x = 0;
+
+            foreach (GameObject pl in planet)
+            {
+                Collider planetCollider = pl.GetComponent<Collider>();
+                if (bombCollider.bounds.Intersects(planetCollider.bounds))
+                {
+                    if (planet[x].transform.tag == "Infected")
+                    {
+                        gameManager.GetComponent<GameManager>().RemoveInfected(x);
+                    }
+                    SetPlanetGood(x);
+                }
+                x++;
+            }
+
+            bomb.SetActive(false);
         }
 
         bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes)
@@ -407,7 +448,7 @@ namespace UnityEngine.XR.iOS
             if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
             {
                 var touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
+                if ((touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved))
                 {
                     var screenPosition = Camera.main.ScreenToViewportPoint(touch.position);
 
@@ -440,10 +481,23 @@ namespace UnityEngine.XR.iOS
 
                     if (Physics.Raycast(ray, out hit, 1.0f))
                     {
+                        shieldButtonPress = gameManager.GetComponent<GameManager>().IsShieldActive();
                         Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
 
                         int number = PlanetClicked(pos);
                         int o = ProjectileClicked(pos);
+
+                        if(shieldButtonPress)
+                        {
+                            if (hit.collider.tag == "Projectile")
+                            {
+                                gameManager.GetComponent<GameManager>().ShieldPress(false, 0);
+                            }
+                            if (hit.collider.tag == "Planet")
+                            {
+                                gameManager.GetComponent<GameManager>().ShieldPress(true, number);
+                            }
+                        }
 
                         if(hit.collider.tag == "Projectile")
                         {
@@ -456,8 +510,27 @@ namespace UnityEngine.XR.iOS
                             {
                                 gameManager.GetComponent<GameManager>().ProjectileDeactivated(o);
                             }
-                                
+                        }
 
+                        if (hit.collider.tag == "Planet")
+                        {
+                            int z = ability[number];
+
+                            if (z == 1)
+                            {
+                                ability[number] = 0;
+                                gameManager.GetComponent<GameManager>().AddTimeAbility();
+                            }
+                            else if (z == 2)
+                            {
+                                ability[number] = 0;
+                                gameManager.GetComponent<GameManager>().AddBombAbility();
+                            }
+                            else if (z == 3)
+                            {
+                                ability[number] = 0;
+                                gameManager.GetComponent<GameManager>().AddShieldAbility();
+                            }
                         }
                     }
                 }

@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 23210275817457526}
   - component: {fileID: 95515669195300530}
   - component: {fileID: 82273560362214074}
+  - component: {fileID: 135450194201932046}
   m_Layer: 0
   m_Name: ice_gray
   m_TagString: Planet
@@ -188,3 +189,15 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!135 &135450194201932046
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1902612903155670}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 5
+  m_Center: {x: 0, y: 0, z: 0}

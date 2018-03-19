@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 23371350442884486}
   - component: {fileID: 95175984939969588}
   - component: {fileID: 82065176385774908}
+  - component: {fileID: 135976537581746300}
   m_Layer: 0
   m_Name: pine
   m_TagString: Planet
@@ -188,3 +189,15 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!135 &135976537581746300
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1410238728658780}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 5.5
+  m_Center: {x: 0, y: 0, z: 0}
