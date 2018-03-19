@@ -14,6 +14,9 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private GameObject gameManager;
 
+        [SerializeField] private AudioClip goodSFX;
+        [SerializeField] private AudioClip badSFX;
+
         private GameObject[] planet;
         private GameObject[] path;
 
@@ -62,7 +65,10 @@ namespace UnityEngine.XR.iOS
         {
             planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
             planet[i].transform.tag = "Planet";
+
             planet[i].GetComponent<AudioSource>().Stop();
+            planet[i].GetComponent<AudioSource>().clip = goodSFX;
+            planet[i].GetComponent<AudioSource>().Play();
 
             bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(i);
             if (b)
@@ -84,6 +90,9 @@ namespace UnityEngine.XR.iOS
             //planet[i].GetComponent<Renderer>().material.Lerp(planetMaterial[1], planetMaterial[2], 2.0f);
             planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[2]);
             planet[i].transform.tag = "Infected";
+
+            planet[i].GetComponent<AudioSource>().Stop();
+            planet[i].GetComponent<AudioSource>().clip = badSFX;
             planet[i].GetComponent<AudioSource>().Play();
 
             gameManager.GetComponent<GameManager>().AddInfected(i);

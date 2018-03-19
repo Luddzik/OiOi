@@ -33,5 +33,20 @@ namespace UnityEngine.XR.iOS
             tutorialNextButton.SetActive(false);
             gameManager.GetComponent<GameManager>().TutorialNext();
         }
+
+        public void SlowTimeAbility()
+        {
+            gameManager.GetComponent<GameManager>().TimeSlowAbility();
+        }
+
+        public void BombAbility()
+        {
+            
+        }
+
+        public void ShieldAbility()
+        {
+            
+        }
 	}
 }

@@ -16,8 +16,12 @@ namespace UnityEngine.XR.iOS
         private Vector3[] edPlanet = new Vector3[5];
 
         private int slowTimeAbility = 0;
+        private bool slowActive = false;
+
         private int bombAbility = 0;
+
         private int shieldAbility = 0;
+        private bool shieldActive = false;
 
         private bool tutorialClick = false;
         private int nextInfection = 0;
@@ -392,6 +396,23 @@ namespace UnityEngine.XR.iOS
         public bool InfectedPlanetListContain(int i)
         {
             return infectedPlanets.Contains(i);
+        }
+
+        public void TimeSlowAbility()
+        {
+            if(slowActive)
+            {
+                StopCoroutine("TimeSlow");
+            }
+            StartCoroutine("TimeSlow");
+        }
+
+        IEnumerator TimeSlow()
+        {
+            slowActive = true;
+            Time.timeScale = 0.4f;
+            yield return new WaitForSeconds(5.0f);
+            Time.timeScale = 1.0f;
         }
 
         void InfectedProjectileDeactivate(int i)
