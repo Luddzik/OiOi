@@ -10,6 +10,7 @@ namespace UnityEngine.XR.iOS
     {
         [SerializeField] private GameObject[] planetPrefab;
         [SerializeField] private Material[] planetMaterial;
+        [SerializeField] private Material[] abilitiesMaterial;
 
         [SerializeField] private GameObject bombPrefab;
         [SerializeField] private GameObject pathPrefab;
@@ -77,6 +78,7 @@ namespace UnityEngine.XR.iOS
             bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(i);
             if (b)
             {
+                NewAbility(i);
                 gameManager.GetComponent<GameManager>().RemoveInfected(i);
             }
         }
@@ -105,7 +107,7 @@ namespace UnityEngine.XR.iOS
             planet[i].GetComponent<AudioSource>().clip = badSFX;
             planet[i].GetComponent<AudioSource>().Play();
 
-            ability[i] = 0;
+            ability[i] = 4;
 
             gameManager.GetComponent<GameManager>().AddInfected(i);
             
@@ -173,10 +175,37 @@ namespace UnityEngine.XR.iOS
                 if (planet[i].tag == "Planet" || planet[i].tag == "Shielded")
                 {
                     ability[i] = x;
+                    if (x == 0)
+                    {
+                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[x]);
+                    }
+                    else if(x == 1)
+                    {
+                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    }
+                    else if(x == 2)
+                    {
+                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    }
+                    else if(x == 3)
+                    {
+                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    }
+
                 }
                 else
                 {
                     ability[i] = 4;
+                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[3]);
                 }
             }
         }
@@ -187,16 +216,46 @@ namespace UnityEngine.XR.iOS
             if (planet[i].transform.tag == "Planet" || planet[i].transform.tag == "Shielded")
             {
                 ability[i] = x;
+                if (x == 0)
+                {
+                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[x]);
+                }
+                else if (x == 1)
+                {
+                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                }
+                else if (x == 2)
+                {
+                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                }
+                else if (x == 3)
+                {
+                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
+                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                }
+
             }
             else
             {
                 ability[i] = 4;
+                planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[3]);
             }
         }
 
         public void RemoveAbility(int i)
         {
             ability[i] = 0;
+            planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+            //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
+            //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[0]);
         }
 
         public int GetAbility(int i)
@@ -477,6 +536,8 @@ namespace UnityEngine.XR.iOS
                         }
                     }
 
+                    gameManager.GetComponent<GameManager>().UpdateUI();
+
                     RaycastHit hit;
 
                     if (Physics.Raycast(ray, out hit, 1.0f))
@@ -518,17 +579,17 @@ namespace UnityEngine.XR.iOS
 
                             if (z == 1)
                             {
-                                ability[number] = 0;
+                                RemoveAbility(number);
                                 gameManager.GetComponent<GameManager>().AddTimeAbility();
                             }
                             else if (z == 2)
                             {
-                                ability[number] = 0;
+                                RemoveAbility(number);
                                 gameManager.GetComponent<GameManager>().AddBombAbility();
                             }
                             else if (z == 3)
                             {
-                                ability[number] = 0;
+                                RemoveAbility(number);
                                 gameManager.GetComponent<GameManager>().AddShieldAbility();
                             }
                         }

@@ -15,7 +15,10 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private Text abilityTwo;
         [SerializeField] private Text abilityThree;
 
-        private List<int> infectedPlanets  = new List<int>();
+        [SerializeField] private Text healthyPlanets;
+        [SerializeField] private Text infPlanets;
+
+        private List<int> infectedPlanets = new List<int>();
 
         private float[] between = new float[5];
         private Vector3[] stPlanet = new Vector3[5];
@@ -37,11 +40,6 @@ namespace UnityEngine.XR.iOS
 
         IEnumerator GameSequence()
         {
-            spawn.GetComponent<Spawn>().RefreshAbilities();
-            abilityOne.text = slowTimeAbility.ToString();
-            abilityTwo.text = bombAbility.ToString();
-            abilityThree.text = shieldAbility.ToString();
-
             // First planet introduction
 
             Transform spawnLoc = spawn.GetComponent<Spawn>().m_HitTransform;
@@ -66,6 +64,7 @@ namespace UnityEngine.XR.iOS
             //spawn.GetComponent<Spawn>().SetPlanetPosition(0, planetEndPos);
 
             // Show intro text
+            ui.GetComponent<Interface>().TutorialOne();
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
@@ -88,13 +87,16 @@ namespace UnityEngine.XR.iOS
             }
 
             // Show next button
-            ui.GetComponent<Interface>().TutorialTextOn();
+            //ui.GetComponent<Interface>().TutorialTextOn();
+
 
             spawn.GetComponent<Spawn>().SetPlanetPosition(0, planetEndPos);
 
-            yield return new WaitUntil(ButtonClicked);
+            yield return new WaitForSeconds(1.0f);
 
-            tutorialClick = false;
+            //yield return new WaitUntil(ButtonClicked);
+
+            //tutorialClick = false;
 
             // Infection introduction
 
@@ -115,6 +117,8 @@ namespace UnityEngine.XR.iOS
 
             x = (planetLoc - planetEndPos);
             s = x.magnitude * 2.0f;
+
+            ui.GetComponent<Interface>().TutorialTwo();
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
@@ -154,6 +158,8 @@ namespace UnityEngine.XR.iOS
             // Path Display
             // Path Text
 
+            ui.GetComponent<Interface>().TutorialThree();
+
             spawn.GetComponent<Spawn>().CreatePath(0, 1, 0);
 
             for (int i = 0; i < 10; i++)
@@ -164,13 +170,15 @@ namespace UnityEngine.XR.iOS
 
             // Warning Planet - Change text to warning planet
             // Show button
-            ui.GetComponent<Interface>().TutorialTextOn();
+            //ui.GetComponent<Interface>().TutorialTextOn();
 
             spawn.GetComponent<Spawn>().SetPlanetWarning(0);
 
-            yield return new WaitUntil(ButtonClicked);
+            //yield return new WaitUntil(ButtonClicked);
 
-            tutorialClick = false;
+            //tutorialClick = false;
+
+            yield return new WaitForSeconds(1.0f);
 
             // Projectile Shoot - Change text to explain projectile and to shoot projectile
 
@@ -219,12 +227,23 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().SetPlanetGood(0);
 
+            ui.GetComponent<Interface>().TutorialFour();
+
             tutorialClick = false;
+
+            yield return new WaitForSeconds(1.0f);
 
             ui.GetComponent<Interface>().TutorialDeactivate();
             ui.GetComponent<Interface>().AbilitiesScreenON();
 
-            yield return new WaitForSeconds(2.0f);
+            spawn.GetComponent<Spawn>().RefreshAbilities();
+            abilityOne.text = slowTimeAbility.ToString();
+            abilityTwo.text = bombAbility.ToString();
+            abilityThree.text = shieldAbility.ToString();
+
+            yield return new WaitForSeconds(1.0f);
+
+
 
             // Text to Ingredients
             // Display ingredients
@@ -263,7 +282,7 @@ namespace UnityEngine.XR.iOS
                 spawn.GetComponent<Spawn>().SetPlanetStatus(i, true);
                 if (spawn.GetComponent<Spawn>().GetPlanetHealth(i) == "Infected")
                 {
-                    if(!infectedPlanets.Contains(i))
+                    if (!infectedPlanets.Contains(i))
                     {
                         infectedPlanets.Add(i);
                     }
@@ -272,7 +291,7 @@ namespace UnityEngine.XR.iOS
                 yield return new WaitForSeconds(0.5f);
             }
 
-            if(infectedPlanets.Count == 0)
+            if (infectedPlanets.Count == 0)
             {
                 int x = Random.Range(0, 10);
                 spawn.GetComponent<Spawn>().SetPlanetBad(x);
@@ -289,7 +308,7 @@ namespace UnityEngine.XR.iOS
             // Which planets are projectiles assigned to
             bool[] x = new bool[5];
 
-            while(infectedPlanets.Count > 0)
+            while (infectedPlanets.Count > 0)
             {
                 for (int i = 0; i < x.Length; i++)
                 {
@@ -305,8 +324,8 @@ namespace UnityEngine.XR.iOS
                 for (int i = 0; i < x.Length; i++)
                 {
                     bool b = GetRandomInfectedPlanet(i);
-                       
-                    if(b == false && oneCount == 0)
+
+                    if (b == false && oneCount == 0)
                     {
                         q = i;
                         oneCount++;
@@ -420,7 +439,7 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
-            if(slowTimeAbility > 0)
+            if (slowTimeAbility > 0)
             {
                 if (slowActive)
                 {
@@ -437,15 +456,15 @@ namespace UnityEngine.XR.iOS
 
         public void ShieldAbility()
         {
-            if(shieldActive)
+            if (shieldActive)
             {
                 shieldActive = false;
                 StopCoroutine("ShieldPlanet");
 
-                if(!shieldActived)
+                if (!shieldActived)
                 {
                     shieldAbility += 1;
-                    RefreshAbilityText();  
+                    RefreshAbilityText();
                 }
             }
             else
@@ -465,9 +484,9 @@ namespace UnityEngine.XR.iOS
         {
             shieldActived = p;
 
-            if(p)
+            if (p)
             {
-                t = i;  
+                t = i;
             }
 
             ButtonPressed();
@@ -503,15 +522,58 @@ namespace UnityEngine.XR.iOS
 
         public void BombAbilityUse()
         {
-            spawn.GetComponent<Spawn>().BombAbility();
+            if (bombAbility > 0)
+            {
+                //StopCoroutine("BombCountdown");
+                
+                ui.GetComponent<Interface>().ChangeBombAbilityState(true);
+                bombAbility -= 1;
+                RefreshAbilityText();
+                spawn.GetComponent<Spawn>().BombAbility();
+
+                StartCoroutine("BombCountdown");
+            }
+
         }
 
         // TO BE DELETED
+
         public void RefreshAbilityText()
         {
             abilityOne.text = slowTimeAbility.ToString();
             abilityTwo.text = bombAbility.ToString();
             abilityThree.text = shieldAbility.ToString();
+        }
+
+        public void UpdateUI()
+        {
+            int x = 10 - infectedPlanets.Count;
+            healthyPlanets.text = x.ToString();
+            infPlanets.text = infectedPlanets.Count.ToString();
+
+            if(bombAbility == 0)
+            {
+                ui.GetComponent<Interface>().ChangeBombAbilityState(true);
+            }
+            else
+            {
+                ui.GetComponent<Interface>().ChangeBombAbilityState(false);
+            }
+
+            if(slowTimeAbility == 0)
+            {
+                ui.GetComponent<Interface>().ChangeTimeAbilityState(true);
+            }
+            else
+            {
+                ui.GetComponent<Interface>().ChangeTimeAbilityState(false);
+            }
+        }
+
+        IEnumerator BombCountdown()
+        {
+            yield return new WaitForSeconds(1.0f);
+            ui.GetComponent<Interface>().ChangeBombAbilityState(false);
         }
 
         IEnumerator TimeSlow()
