@@ -10,48 +10,56 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject spawn;
         [SerializeField] private GameObject ui;
 
-        // Momentery fields - to be deleted once tested
-        [SerializeField] private Text abilityOne;
-        [SerializeField] private Text abilityTwo;
-        [SerializeField] private Text abilityThree;
-
         [SerializeField] private Text healthyPlanets;
         [SerializeField] private Text infPlanets;
 
+        [SerializeField] private GameObject ability;
+
         private List<int> infectedPlanets = new List<int>();
 
+        // Spread planet, able to have 5 shots at a time
+        private bool[] availableProjectile = new bool[5];
         private float[] between = new float[5];
         private Vector3[] stPlanet = new Vector3[5];
         private Vector3[] edPlanet = new Vector3[5];
 
-        private int slowTimeAbility = 0;
+        private Vector3 spawnPos;
+
+        //private int slowTimeAbility = 0;
         private bool slowActive = false;
 
-        private int bombAbility = 0;
+        //private int bombAbility = 0;
 
         private int t; // planet variable
-        private int shieldAbility = 0;
+        //private int shieldAbility = 0;
         private bool waitForPress;
         private bool shieldActive = false;
         private bool shieldActived = false;
+
+        private bool abilityActive = false;
+        private int abilityInUse = 0;
 
         private bool tutorialClick = false;
         private int nextInfection = 0;
 
         IEnumerator GameSequence()
         {
+            // Set spawn location of ability (0.1f above the spawn location)
+            spawnPos = spawn.GetComponent<Spawn>().m_HitTransform.position;
+
+            Vector3 tempPos = new Vector3(spawnPos.x, spawnPos.y + 0.1f, spawnPos.z);
+
+            spawnPos = tempPos;
+
+            SetUpProjectiles();
+
             // First planet introduction
-
-            Transform spawnLoc = spawn.GetComponent<Spawn>().m_HitTransform;
-
             Vector3 planetLoc = spawn.GetComponent<Spawn>().m_HitTransform.position;
             Vector3 planetEndPos = spawn.GetComponent<Spawn>().GetPlanetTransform(0);
 
             float planetScale = spawn.GetComponent<Spawn>().GetPlanetScale(0);
 
             float newPlanetScale = planetScale / 10.0f;
-
-            float temp = newPlanetScale;
 
             spawn.GetComponent<Spawn>().SetPlanetScale(0, new Vector3(newPlanetScale, newPlanetScale, newPlanetScale));
 
@@ -106,8 +114,6 @@ namespace UnityEngine.XR.iOS
             planetScale = spawn.GetComponent<Spawn>().GetPlanetScale(1);
 
             newPlanetScale = planetScale / 10.0f;
-
-            temp = newPlanetScale;
 
             spawn.GetComponent<Spawn>().SetPlanetScale(1, new Vector3(newPlanetScale, newPlanetScale, newPlanetScale));
 
@@ -237,39 +243,8 @@ namespace UnityEngine.XR.iOS
             ui.GetComponent<Interface>().AbilitiesScreenON();
 
             spawn.GetComponent<Spawn>().RefreshAbilities();
-            abilityOne.text = slowTimeAbility.ToString();
-            abilityTwo.text = bombAbility.ToString();
-            abilityThree.text = shieldAbility.ToString();
 
             yield return new WaitForSeconds(1.0f);
-
-
-
-            // Text to Ingredients
-            // Display ingredients
-
-            // Introduction to Ingredients
-
-            // Show next button
-            // ui.GetComponent<UI>().TutorialTextOn();
-            // yield return new WaitUntil(ButtonClicked);
-
-            // tutorialClick = false;
-
-            // Win/Lose conditions explained
-            // ui.GetComponent<UI>().TutorialTextOn();
-            // Play game button - display whole world
-
-
-            // Projectile from infected planet... ::DONE::
-            // Have projectile shoot and player has to interfere...  ::DONE::
-            // Introduction to Ingredients...
-            // On-Screen buttons to create ingredients...
-            //          Shield...
-            //          Bomb...
-            //          Slow Time...
-            // Add sound effects/music...
-            // Win/Lose conditions...
 
             StartCoroutine("GameStart");
 
@@ -306,13 +281,12 @@ namespace UnityEngine.XR.iOS
         IEnumerator InfectionSpread()
         {
             // Which planets are projectiles assigned to
-            bool[] x = new bool[5];
 
             while (infectedPlanets.Count > 0)
             {
-                for (int i = 0; i < x.Length; i++)
+                for (int i = 0; i < availableProjectile.Length; i++)
                 {
-                    x[i] = spawn.GetComponent<Spawn>().GetProjectileStatus(i);
+                    availableProjectile[i] = spawn.GetComponent<Spawn>().GetProjectileStatus(i);
                 }
 
                 yield return new WaitForSeconds(Random.Range(0.0f, 5.0f));
@@ -321,7 +295,7 @@ namespace UnityEngine.XR.iOS
                 int q = 0;
                 int oneCount = 0;
 
-                for (int i = 0; i < x.Length; i++)
+                for (int i = 0; i < availableProjectile.Length; i++)
                 {
                     bool b = GetRandomInfectedPlanet(i);
 
@@ -439,18 +413,13 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
-            if (slowTimeAbility > 0)
+
+            if (slowActive)
             {
-                if (slowActive)
-                {
-                    StopCoroutine("TimeSlow");
-                }
-
-                slowTimeAbility -= 1;
-                RefreshAbilityText();
-
-                StartCoroutine("TimeSlow");
+                StopCoroutine("TimeSlow");
             }
+
+            StartCoroutine("TimeSlow");
 
         }
 
@@ -461,20 +430,12 @@ namespace UnityEngine.XR.iOS
                 shieldActive = false;
                 StopCoroutine("ShieldPlanet");
 
-                if (!shieldActived)
-                {
-                    shieldAbility += 1;
-                    RefreshAbilityText();
-                }
             }
             else
             {
                 shieldActive = true;
                 waitForPress = false;
 
-
-                shieldAbility -= 1;
-                RefreshAbilityText();
                 StartCoroutine("ShieldPlanet");
             }
 
@@ -492,24 +453,6 @@ namespace UnityEngine.XR.iOS
             ButtonPressed();
         }
 
-        public void AddTimeAbility()
-        {
-            slowTimeAbility += 1;
-            RefreshAbilityText();
-        }
-
-        public void AddBombAbility()
-        {
-            bombAbility += 1;
-            RefreshAbilityText();
-        }
-
-        public void AddShieldAbility()
-        {
-            shieldAbility += 1;
-            RefreshAbilityText();
-        }
-
         public bool IsShieldActive()
         {
             return shieldActive;
@@ -522,27 +465,13 @@ namespace UnityEngine.XR.iOS
 
         public void BombAbilityUse()
         {
-            if (bombAbility > 0)
-            {
-                //StopCoroutine("BombCountdown");
-                
-                ui.GetComponent<Interface>().ChangeBombAbilityState(true);
-                bombAbility -= 1;
-                RefreshAbilityText();
-                spawn.GetComponent<Spawn>().BombAbility();
 
-                StartCoroutine("BombCountdown");
-            }
+            ui.GetComponent<Interface>().ChangeBombAbilityState(true);
 
-        }
+            spawn.GetComponent<Spawn>().BombAbility();
 
-        // TO BE DELETED
+            StartCoroutine("BombCountdown");
 
-        public void RefreshAbilityText()
-        {
-            abilityOne.text = slowTimeAbility.ToString();
-            abilityTwo.text = bombAbility.ToString();
-            abilityThree.text = shieldAbility.ToString();
         }
 
         public void UpdateUI()
@@ -551,22 +480,20 @@ namespace UnityEngine.XR.iOS
             healthyPlanets.text = x.ToString();
             infPlanets.text = infectedPlanets.Count.ToString();
 
-            if(bombAbility == 0)
-            {
-                ui.GetComponent<Interface>().ChangeBombAbilityState(true);
-            }
-            else
-            {
-                ui.GetComponent<Interface>().ChangeBombAbilityState(false);
-            }
+        }
 
-            if(slowTimeAbility == 0)
+        public bool IsAbilityActive()
+        {
+            return abilityActive;
+        }
+
+        public void SetAbilityActive(bool state)
+        {
+            abilityActive = state;
+
+            if(state)
             {
-                ui.GetComponent<Interface>().ChangeTimeAbilityState(true);
-            }
-            else
-            {
-                ui.GetComponent<Interface>().ChangeTimeAbilityState(false);
+                abilityInUse = ability.GetComponent<Ability>().UsingAbility();
             }
         }
 
@@ -579,9 +506,9 @@ namespace UnityEngine.XR.iOS
         IEnumerator TimeSlow()
         {
             slowActive = true;
-            Time.timeScale = 0.2f;
+            //Time.timeScale = 0.2f;
             yield return new WaitForSeconds(5.0f);
-            Time.timeScale = 1.0f;
+            //Time.timeScale = 1.0f;
         }
 
         IEnumerator ShieldPlanet()
@@ -602,6 +529,14 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetPlanetGood(t);
             shieldActived = false;
 
+        }
+
+        void SetUpProjectiles()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                availableProjectile[i] = false;
+            }
         }
 
         bool ButtonPressed()

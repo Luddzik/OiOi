@@ -16,6 +16,7 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject pathPrefab;
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private GameObject gameManager;
+        [SerializeField] private GameObject abilitySpawn;
 
         [SerializeField] private AudioClip goodSFX;
         [SerializeField] private AudioClip badSFX;
@@ -24,7 +25,7 @@ namespace UnityEngine.XR.iOS
         private GameObject[] path;
 
         private int[] ability;
-        private bool shieldButtonPress;
+        private bool abilityPress;
         private GameObject bomb;
 
         private GameObject[] projectile;
@@ -542,22 +543,19 @@ namespace UnityEngine.XR.iOS
 
                     if (Physics.Raycast(ray, out hit, 1.0f))
                     {
-                        shieldButtonPress = gameManager.GetComponent<GameManager>().IsShieldActive();
+                        abilityPress = abilitySpawn.GetComponent<Ability>().GetAbilityStatus();
+                            
+                        //shieldButtonPress = gameManager.GetComponent<GameManager>().IsShieldActive();
                         Vector3 pos = new Vector3((float)hit.transform.position.x, (float)hit.transform.position.y, (float)hit.transform.position.z);
 
                         int number = PlanetClicked(pos);
                         int o = ProjectileClicked(pos);
 
-                        if(shieldButtonPress)
+                        if(abilityPress && hit.collider.tag == "Ability")
                         {
-                            if (hit.collider.tag == "Projectile")
-                            {
-                                gameManager.GetComponent<GameManager>().ShieldPress(false, 0);
-                            }
-                            if (hit.collider.tag == "Planet")
-                            {
-                                gameManager.GetComponent<GameManager>().ShieldPress(true, number);
-                            }
+                            gameManager.GetComponent<GameManager>().SetAbilityActive(true);
+
+                            abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
                         }
 
                         if(hit.collider.tag == "Projectile")
@@ -576,21 +574,29 @@ namespace UnityEngine.XR.iOS
                         if (hit.collider.tag == "Planet")
                         {
                             int z = ability[number];
+                            // using ability
+                            int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
 
-                            if (z == 1)
+                            if (z == 1 && z != ab)
                             {
                                 RemoveAbility(number);
-                                gameManager.GetComponent<GameManager>().AddTimeAbility();
+
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
                             }
-                            else if (z == 2)
+                            else if (z == 2 && z != ab)
                             {
                                 RemoveAbility(number);
-                                gameManager.GetComponent<GameManager>().AddBombAbility();
+
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
                             }
-                            else if (z == 3)
+                            else if (z == 3 && z != ab)
                             {
                                 RemoveAbility(number);
-                                gameManager.GetComponent<GameManager>().AddShieldAbility();
+
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
                             }
                         }
                     }
