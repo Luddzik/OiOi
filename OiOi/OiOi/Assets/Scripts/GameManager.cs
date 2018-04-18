@@ -30,9 +30,9 @@ namespace UnityEngine.XR.iOS
 
         //private int bombAbility = 0;
 
-        private int t; // planet variable
+        private int sp; // planet variable shield planet
         //private int shieldAbility = 0;
-        private bool waitForPress;
+        private bool waitForPress = false;
         private bool shieldActive = false;
         private bool shieldActived = false;
 
@@ -41,6 +41,8 @@ namespace UnityEngine.XR.iOS
 
         private bool tutorialClick = false;
         private int nextInfection = 0;
+
+        private float speed;
 
         IEnumerator GameSequence()
         {
@@ -68,7 +70,7 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetPlanetStatus(0, true);
 
             Vector3 x = (planetLoc - planetEndPos);
-            float s = x.magnitude;
+            speed = x.magnitude;
             //spawn.GetComponent<Spawn>().SetPlanetPosition(0, planetEndPos);
 
             // Show intro text
@@ -76,7 +78,7 @@ namespace UnityEngine.XR.iOS
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
-                spawn.GetComponent<Spawn>().SetPlanetPosition(0, Vector3.Lerp(planetLoc, planetEndPos, s * Time.deltaTime));
+                spawn.GetComponent<Spawn>().SetPlanetPosition(0, Vector3.Lerp(planetLoc, planetEndPos, speed * Time.deltaTime));
 
                 if (newPlanetScale < planetScale)
                 {
@@ -122,13 +124,13 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetPlanetStatus(1, true);
 
             x = (planetLoc - planetEndPos);
-            s = x.magnitude * 2.0f;
+            speed = x.magnitude * 2.0f;
 
             ui.GetComponent<Interface>().TutorialTwo();
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
-                spawn.GetComponent<Spawn>().SetPlanetPosition(1, Vector3.Lerp(planetLoc, planetEndPos, s * Time.deltaTime));
+                spawn.GetComponent<Spawn>().SetPlanetPosition(1, Vector3.Lerp(planetLoc, planetEndPos, speed * Time.deltaTime));
 
                 if (newPlanetScale < planetScale)
                 {
@@ -200,19 +202,20 @@ namespace UnityEngine.XR.iOS
 
             float distance = Vector3.Distance(start, destination) / 2.0f;
 
-            s = 2.0f * Time.deltaTime;
+            speed = 1.0f * Time.deltaTime;
 
             spawn.GetComponent<Spawn>().ProjectileSound(0);
 
             while (!tutorialClick)
             {
-                spawn.GetComponent<Spawn>().SetProjectileLocation(0, Vector3.Lerp(start, destination, s));
+                spawn.GetComponent<Spawn>().SetProjectileLocation(0, Vector3.Lerp(start, destination, speed));
 
                 start = spawn.GetComponent<Spawn>().GetProjectileLocation(0);
 
                 if (Vector3.Distance(start, destination) <= distance && !tutorialClick)
                 {
-                    Time.timeScale = 0.1f;
+                    speed = 0.2f * Time.deltaTime;
+                    //Time.timeScale = 0.1f;
                     // Click on the projectile to get off - Text
                 }
 
@@ -225,7 +228,9 @@ namespace UnityEngine.XR.iOS
 
                     start = spawn.GetComponent<Spawn>().GetPlanetTransform(1);
                     spawn.GetComponent<Spawn>().SetPlanetWarning(0);
-                    Time.timeScale = 1.0f;
+
+                    speed = 1.0f * Time.deltaTime;
+                    //Time.timeScale = 1.0f;
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -240,7 +245,6 @@ namespace UnityEngine.XR.iOS
             yield return new WaitForSeconds(1.0f);
 
             ui.GetComponent<Interface>().TutorialDeactivate();
-            ui.GetComponent<Interface>().AbilitiesScreenON();
 
             spawn.GetComponent<Spawn>().RefreshAbilities();
 
@@ -275,10 +279,14 @@ namespace UnityEngine.XR.iOS
 
             yield return new WaitForSeconds(2.0f);
 
-            StartCoroutine("InfectionSpread");
+            for (int i = 0; i < 10; i++)
+            {
+                spawn.GetComponent<Spawn>().BeginPlanetSpread(i);
+            }
+            //StartCoroutine("InfectionSpread");
         }
 
-        IEnumerator InfectionSpread()
+        /*IEnumerator InfectionSpread()
         {
             // Which planets are projectiles assigned to
 
@@ -327,7 +335,7 @@ namespace UnityEngine.XR.iOS
 
                     between[q] = Vector3.Distance(stPlanet[q], edPlanet[q]);
 
-                    float s = 2.0f * Time.deltaTime;
+                    speed = 1.0f * Time.deltaTime;
 
                     spawn.GetComponent<Spawn>().SetProjectileStatus(q, true);
 
@@ -345,7 +353,7 @@ namespace UnityEngine.XR.iOS
 
                     while (fly)
                     {
-                        spawn.GetComponent<Spawn>().SetProjectileLocation(q, Vector3.Lerp(stPlanet[q], edPlanet[q], s));
+                        spawn.GetComponent<Spawn>().SetProjectileLocation(q, Vector3.Lerp(stPlanet[q], edPlanet[q], speed));
 
                         stPlanet[q] = spawn.GetComponent<Spawn>().GetProjectileLocation(0);
 
@@ -367,6 +375,63 @@ namespace UnityEngine.XR.iOS
             }
 
             yield return null;
+        }*/
+
+        public void ProjectileSet(int startPlanet, int projectileLocation)
+        {
+            spawn.GetComponent<Spawn>().SetProjectileStatus(projectileLocation, true);
+
+            nextInfection = spawn.GetComponent<Spawn>().Spread(startPlanet);
+
+            spawn.GetComponent<Spawn>().CreatePath(projectileLocation, startPlanet, nextInfection);
+
+            spawn.GetComponent<Spawn>().SetPlanetWarning(nextInfection);
+
+            stPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(startPlanet);
+
+            spawn.GetComponent<Spawn>().SetProjectileLocation(projectileLocation, stPlanet[projectileLocation]);
+
+            edPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(nextInfection);
+
+            between[projectileLocation] = Vector3.Distance(stPlanet[projectileLocation], edPlanet[projectileLocation]);
+        }
+
+        public float GetSpeed()
+        {
+            return speed;
+        }
+
+        public Vector3 DestinationPlanetPos(int projectileLocation)
+        {
+            return edPlanet[projectileLocation];
+        }
+
+        public int DestPlanet(int projectileLoc)
+        {
+            int x = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 a = spawn.GetComponent<Spawn>().GetPlanetTransform(i);
+                if (a == edPlanet[projectileLoc])
+                {
+                    x = i;
+                }
+            }
+            return x;
+        }
+
+        public int GetProjectile()
+        {
+            int freeProj = availableProjectile.Length;
+            for (int i = 0; i < availableProjectile.Length; i++)
+            {
+                availableProjectile[i] = spawn.GetComponent<Spawn>().GetProjectileStatus(i);
+                if(!availableProjectile[i] && i < freeProj)
+                {
+                    freeProj = i;
+                }
+            }
+            return freeProj;
         }
 
         public void AddInfected(int i)
@@ -377,6 +442,11 @@ namespace UnityEngine.XR.iOS
         public void RemoveInfected(int i)
         {
             infectedPlanets.Remove(i);
+        }
+
+        public int NumberOfInfected()
+        {
+            return infectedPlanets.Count;
         }
 
         public void TutorialNext()
@@ -403,7 +473,18 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().SetProjectileStatus(i, false);
 
-            spawn.GetComponent<Spawn>().SetPlanetGood(nextInfection);
+            int x = 0;
+            for (int j = 0; j < 10; j++)
+            {
+                Vector3 a = spawn.GetComponent<Spawn>().GetPlanetTransform(j);
+                if(a == edPlanet[i])
+                {
+                    x = j;
+                }
+            }
+            //int x = spawn.GetComponent<Spawn>().PlanetClicked(edPlanet[i]);
+
+            spawn.GetComponent<Spawn>().SetPlanetGood(x);
         }
 
         public bool InfectedPlanetListContain(int i)
@@ -413,14 +494,12 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
-
             if (slowActive)
             {
                 StopCoroutine("TimeSlow");
             }
 
             StartCoroutine("TimeSlow");
-
         }
 
         public void ShieldAbility()
@@ -429,49 +508,18 @@ namespace UnityEngine.XR.iOS
             {
                 shieldActive = false;
                 StopCoroutine("ShieldPlanet");
-
             }
             else
             {
                 shieldActive = true;
-                waitForPress = false;
-
                 StartCoroutine("ShieldPlanet");
             }
 
         }
 
-        public void ShieldPress(bool p, int i)
-        {
-            shieldActived = p;
-
-            if (p)
-            {
-                t = i;
-            }
-
-            ButtonPressed();
-        }
-
-        public bool IsShieldActive()
-        {
-            return shieldActive;
-        }
-
-        public bool IsShielded()
-        {
-            return shieldActived;
-        }
-
         public void BombAbilityUse()
         {
-
-            ui.GetComponent<Interface>().ChangeBombAbilityState(true);
-
             spawn.GetComponent<Spawn>().BombAbility();
-
-            StartCoroutine("BombCountdown");
-
         }
 
         public void UpdateUI()
@@ -494,44 +542,78 @@ namespace UnityEngine.XR.iOS
             if(state)
             {
                 abilityInUse = ability.GetComponent<Ability>().UsingAbility();
+                DoAbility();
             }
         }
 
-        IEnumerator BombCountdown()
+        public void ShieldPlanet(int no)
         {
-            yield return new WaitForSeconds(1.0f);
-            ui.GetComponent<Interface>().ChangeBombAbilityState(false);
+            sp = no;
         }
 
         IEnumerator TimeSlow()
         {
             slowActive = true;
+
+            speed = 0.2f * Time.deltaTime;
             //Time.timeScale = 0.2f;
             yield return new WaitForSeconds(5.0f);
+
+            speed = 1.0f * Time.deltaTime;
             //Time.timeScale = 1.0f;
+
+            slowActive = false;
         }
 
         IEnumerator ShieldPlanet()
         {
-            yield return new WaitForSeconds(0.5f);
- 
-            yield return new WaitUntil(ButtonPressed);
-            if (shieldActived)
-            {
-                spawn.GetComponent<Spawn>().SetPlanetShield(t);
-                yield return new WaitForSeconds(5.0f);
-            }
-            else 
-            {
-                ShieldAbility();
-            }
+            spawn.GetComponent<Spawn>().SetPlanetShield(sp);
+            yield return new WaitForSeconds(5.0f);
 
-            spawn.GetComponent<Spawn>().SetPlanetGood(t);
-            shieldActived = false;
-
+            spawn.GetComponent<Spawn>().SetPlanetGood(sp);
+            shieldActive = false;
         }
 
-        void SetUpProjectiles()
+		public void DoAbility()
+        {
+            if(abilityInUse == 1)
+            {
+                // Bomb ability
+                if(waitForPress)
+                {
+                    // Do Bomb Ability
+                    BombAbilityUse();
+                    waitForPress = false;
+                }
+                else
+                {
+                    waitForPress = true;
+                }
+            }
+            else if(abilityInUse == 2)
+            {
+                // Slow ability
+                spawn.GetComponent<Spawn>().SetPulsing(false);
+                TimeSlowAbility();
+
+            }
+            else if(abilityInUse == 3)
+            {
+                // Shield ability
+                if (waitForPress)
+                {
+                    // Do Shield Ability
+                    ShieldAbility();
+                    waitForPress = false;
+                }
+                else
+                {
+                    waitForPress = true;
+                }
+            }
+        }
+
+		void SetUpProjectiles()
         {
             for (int i = 0; i < 5; i++)
             {
@@ -539,14 +621,7 @@ namespace UnityEngine.XR.iOS
             }
         }
 
-        bool ButtonPressed()
-        {
-            waitForPress = true;
-
-            return waitForPress;
-        }
-
-        void InfectedProjectileDeactivate(int i)
+        public void InfectedProjectileDeactivate(int i)
         {
             spawn.GetComponent<Spawn>().DeactivatePath(i);
 

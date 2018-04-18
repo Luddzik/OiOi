@@ -25,7 +25,9 @@ namespace UnityEngine.XR.iOS
         private GameObject[] path;
 
         private int[] ability;
-        private bool abilityPress;
+        private bool abilityPress = false;
+        private bool pulsingAbility = false;
+
         private GameObject bomb;
 
         private GameObject[] projectile;
@@ -112,6 +114,11 @@ namespace UnityEngine.XR.iOS
 
             gameManager.GetComponent<GameManager>().AddInfected(i);
             
+        }
+
+        public void BeginPlanetSpread(int i)
+        {
+            planet[i].GetComponent<Planet>().StartCoroutine("Spread");
         }
 
         public void SetProjectileStatus(int i, bool status)
@@ -337,7 +344,28 @@ namespace UnityEngine.XR.iOS
                 x++;
             }
 
+            x = 0;
+
+            foreach (GameObject pr in projectile)
+            {
+                if(pr.activeSelf)
+                {
+                    Collider projCollider = pr.GetComponent<Collider>();
+
+                    if (bombCollider.bounds.Intersects(projCollider.bounds))
+                    {
+                        gameManager.GetComponent<GameManager>().ProjectileDeactivated(x);
+                    }
+                }
+                x++;
+            }
+
             bomb.SetActive(false);
+        }
+
+        public void SetPulsing(bool state)
+        {
+            pulsingAbility = state;
         }
 
         bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes)
@@ -461,7 +489,7 @@ namespace UnityEngine.XR.iOS
             planet[9].SetActive(false);
         }
 
-        int PlanetClicked(Vector3 pos)
+        public int PlanetClicked(Vector3 pos)
         {
             int planetReturn = 0;
             float result = 100.0f;
@@ -551,15 +579,69 @@ namespace UnityEngine.XR.iOS
                         int number = PlanetClicked(pos);
                         int o = ProjectileClicked(pos);
 
-                        if(abilityPress && hit.collider.tag == "Ability")
+                        if (pulsingAbility)
+                        {
+                            int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
+
+                            if (ab == 3 && hit.collider.tag == "Planet")
+                            {
+                                pulsingAbility = false;
+                                gameManager.GetComponent<GameManager>().ShieldPlanet(number);
+                                gameManager.GetComponent<GameManager>().DoAbility();
+                            }
+                            else if (ab == 1)
+                            {
+                                pulsingAbility = false;
+                                gameManager.GetComponent<GameManager>().DoAbility();
+                            }
+                        }
+                        else if (hit.collider.tag == "Planet")
+                        {
+                            int z = ability[number];
+                            // using ability
+                            int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
+
+                            pulsingAbility = false;
+
+                            if (z == 1 && z != ab)
+                            {
+                                RemoveAbility(number);
+
+                                abilitySpawn.GetComponent<Ability>().SetPulsing(false);
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
+                            }
+                            else if (z == 2 && z != ab)
+                            {
+                                RemoveAbility(number);
+
+                                abilitySpawn.GetComponent<Ability>().SetPulsing(false);
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
+                            }
+                            else if (z == 3 && z != ab)
+                            {
+                                RemoveAbility(number);
+
+                                abilitySpawn.GetComponent<Ability>().SetPulsing(false);
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
+                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
+                            }
+                        }
+
+                        if (abilityPress && hit.collider.tag == "Ability")
                         {
                             gameManager.GetComponent<GameManager>().SetAbilityActive(true);
 
-                            abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
+                            // Set it to pulsing when ability is active... when activated again make it false.
+                            pulsingAbility = true;
+                            abilitySpawn.GetComponent<Ability>().SetPulsing(true);
                         }
 
-                        if(hit.collider.tag == "Projectile")
+                        if (hit.collider.tag == "Projectile")
                         {
+                            pulsingAbility = false;
+
                             if (oneOff == 0)
                             {
                                 gameManager.GetComponent<GameManager>().TutorialProjectile();
@@ -571,34 +653,6 @@ namespace UnityEngine.XR.iOS
                             }
                         }
 
-                        if (hit.collider.tag == "Planet")
-                        {
-                            int z = ability[number];
-                            // using ability
-                            int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
-
-                            if (z == 1 && z != ab)
-                            {
-                                RemoveAbility(number);
-
-                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
-                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
-                            }
-                            else if (z == 2 && z != ab)
-                            {
-                                RemoveAbility(number);
-
-                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
-                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
-                            }
-                            else if (z == 3 && z != ab)
-                            {
-                                RemoveAbility(number);
-
-                                abilitySpawn.GetComponent<Ability>().UpdateStatus(true);
-                                abilitySpawn.GetComponent<Ability>().AbilityDisplay(z);
-                            }
-                        }
                     }
                 }
             }

@@ -1079,7 +1079,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1444340780817450, guid: ae045b6ba49bc464f9d9931e610d91ae,
     type: 2}
   gameManager: {fileID: 822611394}
-  abilitySpawn: {fileID: 0}
+  abilitySpawn: {fileID: 304016002}
   goodSFX: {fileID: 8300000, guid: 1274eb00097e14cd2ae7b759b6326f28, type: 3}
   badSFX: {fileID: 8300000, guid: 6e73dd8cb92aa4dedb27c149b3505e4c, type: 3}
   m_HitTransform: {fileID: 1286139108}
@@ -1098,7 +1098,7 @@ GameObject:
   - component: {fileID: 822611395}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2683,17 +2683,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameManager: {fileID: 822611394}
   tutorialScreen: {fileID: 1814926129}
-  abilitiesScreen: {fileID: 0}
   tutorialNextButton: {fileID: 1668754373}
   textBg: {fileID: 1675509904}
   tutText1: {fileID: 1165838220}
   tutText2: {fileID: 1384394450}
   tutText3: {fileID: 2096796098}
   tutText4: {fileID: 1148453431}
-  TimeAbilityActive: {fileID: 0}
-  TimeAbilityDeactivated: {fileID: 0}
-  BombAbilityActive: {fileID: 0}
-  BombAbilityDeactivated: {fileID: 0}
 --- !u!1 &1534850150
 GameObject:
   m_ObjectHideFlags: 0

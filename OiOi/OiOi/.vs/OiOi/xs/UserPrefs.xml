@@ -2,11 +2,12 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Ability.cs">
     <Files>
       <File FileName="Assets/Scripts/WorldSpawn.cs" Line="809" Column="53" />
-      <File FileName="Assets/Scripts/Spawn.cs" Line="555" Column="66" />
-      <File FileName="Assets/Scripts/GameManager.cs" Line="33" Column="35" />
-      <File FileName="Assets/Scripts/Interface.cs" Line="32" Column="9" />
-      <File FileName="Assets/Scripts/AbilityBall.cs" Line="16" Column="47" />
-      <File FileName="Assets/Scripts/Ability.cs" Line="7" Column="5" />
+      <File FileName="Assets/Scripts/Spawn.cs" Line="121" Column="45" />
+      <File FileName="Assets/Scripts/GameManager.cs" Line="396" Column="10" />
+      <File FileName="Assets/Scripts/Interface.cs" Line="13" Column="60" />
+      <File FileName="Assets/Scripts/AbilityBall.cs" Line="16" Column="35" />
+      <File FileName="Assets/Scripts/Ability.cs" Line="6" Column="2" />
+      <File FileName="Assets/Scripts/Planet.cs" Line="14" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
