@@ -118,6 +118,7 @@ namespace UnityEngine.XR.iOS
 
         public void BeginPlanetSpread(int i)
         {
+            planet[i].GetComponent<Planet>().SetPlanetLoc(i);
             planet[i].GetComponent<Planet>().StartCoroutine("Spread");
         }
 
@@ -536,7 +537,7 @@ namespace UnityEngine.XR.iOS
             if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
             {
                 var touch = Input.GetTouch(0);
-                if ((touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved))
+                if ((touch.phase == TouchPhase.Began ))//|| touch.phase == TouchPhase.Moved))
                 {
                     var screenPosition = Camera.main.ScreenToViewportPoint(touch.position);
 
@@ -588,11 +589,14 @@ namespace UnityEngine.XR.iOS
                                 pulsingAbility = false;
                                 gameManager.GetComponent<GameManager>().ShieldPlanet(number);
                                 gameManager.GetComponent<GameManager>().DoAbility();
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
+
                             }
-                            else if (ab == 1)
+                            else if (ab == 2 && (hit.collider.tag == "Shielded" || hit.collider.tag == "Planet" || hit.collider.tag == "Projectile"))
                             {
                                 pulsingAbility = false;
                                 gameManager.GetComponent<GameManager>().DoAbility();
+                                abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
                             }
                         }
                         else if (hit.collider.tag == "Planet")

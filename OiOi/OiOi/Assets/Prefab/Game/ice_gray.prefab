@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 95515669195300530}
   - component: {fileID: 82273560362214074}
   - component: {fileID: 135450194201932046}
+  - component: {fileID: 114833692410963186}
   m_Layer: 0
   m_Name: ice_gray
   m_TagString: Planet
@@ -271,6 +272,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbce8d00054f04dce815ee5b85ccf276, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114833692410963186
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1902612903155670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!135 &135450194201932046

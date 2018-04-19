@@ -665,7 +665,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &304016003
 Transform:
   m_ObjectHideFlags: 0
@@ -1074,6 +1074,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 769249d610b3b469e9714e494601abda, type: 2}
   - {fileID: 2100000, guid: d0f9e86e777dc4afb83a17c5540fc5b5, type: 2}
   - {fileID: 2100000, guid: 5018827595f9e434e9363a237309ae18, type: 2}
+  - {fileID: 2100000, guid: 2a92db4cab5584305b185e65172735ca, type: 2}
   bombPrefab: {fileID: 1982672774675678, guid: a20dcbf490aec4374aba0b56b12b3bdb, type: 2}
   pathPrefab: {fileID: 1776281482631784, guid: 0e1edc78ac70c4d9b90f1f392bb3edac, type: 2}
   projectilePrefab: {fileID: 1444340780817450, guid: ae045b6ba49bc464f9d9931e610d91ae,
@@ -1118,7 +1119,7 @@ MonoBehaviour:
   ui: {fileID: 1485722333}
   healthyPlanets: {fileID: 1258766127}
   infPlanets: {fileID: 14424958}
-  ability: {fileID: 0}
+  ability: {fileID: 304016002}
 --- !u!4 &822611396
 Transform:
   m_ObjectHideFlags: 0

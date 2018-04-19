@@ -41,6 +41,7 @@ namespace UnityEngine.XR.iOS
 
         private bool tutorialClick = false;
         private int nextInfection = 0;
+        private int[] nxtInf = new int[5];
 
         private float speed;
 
@@ -236,6 +237,8 @@ namespace UnityEngine.XR.iOS
                 yield return new WaitForSeconds(0.1f);
             }
 
+            speed = 1.0f * Time.deltaTime;
+
             spawn.GetComponent<Spawn>().SetPlanetGood(0);
 
             ui.GetComponent<Interface>().TutorialFour();
@@ -381,17 +384,17 @@ namespace UnityEngine.XR.iOS
         {
             spawn.GetComponent<Spawn>().SetProjectileStatus(projectileLocation, true);
 
-            nextInfection = spawn.GetComponent<Spawn>().Spread(startPlanet);
+            nxtInf[projectileLocation] = spawn.GetComponent<Spawn>().Spread(startPlanet);
 
-            spawn.GetComponent<Spawn>().CreatePath(projectileLocation, startPlanet, nextInfection);
+            spawn.GetComponent<Spawn>().CreatePath(projectileLocation, startPlanet, nxtInf[projectileLocation]);
 
-            spawn.GetComponent<Spawn>().SetPlanetWarning(nextInfection);
+            spawn.GetComponent<Spawn>().SetPlanetWarning(nxtInf[projectileLocation]);
 
             stPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(startPlanet);
 
             spawn.GetComponent<Spawn>().SetProjectileLocation(projectileLocation, stPlanet[projectileLocation]);
 
-            edPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(nextInfection);
+            edPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(nxtInf[projectileLocation]);
 
             between[projectileLocation] = Vector3.Distance(stPlanet[projectileLocation], edPlanet[projectileLocation]);
         }
@@ -406,18 +409,14 @@ namespace UnityEngine.XR.iOS
             return edPlanet[projectileLocation];
         }
 
+        public float DistanceBetween(int projectileLoc)
+        {
+            return between[projectileLoc];
+        }
+
         public int DestPlanet(int projectileLoc)
         {
-            int x = 0;
-            for (int i = 0; i < 10; i++)
-            {
-                Vector3 a = spawn.GetComponent<Spawn>().GetPlanetTransform(i);
-                if (a == edPlanet[projectileLoc])
-                {
-                    x = i;
-                }
-            }
-            return x;
+            return nxtInf[projectileLoc];
         }
 
         public int GetProjectile()
@@ -473,15 +472,7 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().SetProjectileStatus(i, false);
 
-            int x = 0;
-            for (int j = 0; j < 10; j++)
-            {
-                Vector3 a = spawn.GetComponent<Spawn>().GetPlanetTransform(j);
-                if(a == edPlanet[i])
-                {
-                    x = j;
-                }
-            }
+            int x = nxtInf[i];
             //int x = spawn.GetComponent<Spawn>().PlanetClicked(edPlanet[i]);
 
             spawn.GetComponent<Spawn>().SetPlanetGood(x);
@@ -507,6 +498,9 @@ namespace UnityEngine.XR.iOS
             if (shieldActive)
             {
                 shieldActive = false;
+                spawn.GetComponent<Spawn>().SetPlanetGood(sp);
+                spawn.GetComponent<Spawn>().SetPulsing(false);
+                speed = 1.0f * Time.deltaTime;
                 StopCoroutine("ShieldPlanet");
             }
             else
@@ -539,7 +533,7 @@ namespace UnityEngine.XR.iOS
         {
             abilityActive = state;
 
-            if(state)
+            if(abilityActive)
             {
                 abilityInUse = ability.GetComponent<Ability>().UsingAbility();
                 DoAbility();
@@ -563,6 +557,7 @@ namespace UnityEngine.XR.iOS
             //Time.timeScale = 1.0f;
 
             slowActive = false;
+
         }
 
         IEnumerator ShieldPlanet()
@@ -578,23 +573,26 @@ namespace UnityEngine.XR.iOS
         {
             if(abilityInUse == 1)
             {
+                // Slow ability
+                spawn.GetComponent<Spawn>().SetPulsing(false);
+                ability.GetComponent<Ability>().UpdateStatus(false);
+                TimeSlowAbility();
+
+            }
+            else if(abilityInUse == 2)
+            {
                 // Bomb ability
-                if(waitForPress)
+                if (waitForPress)
                 {
                     // Do Bomb Ability
                     BombAbilityUse();
+                    spawn.GetComponent<Spawn>().SetPulsing(false);
                     waitForPress = false;
                 }
                 else
                 {
                     waitForPress = true;
                 }
-            }
-            else if(abilityInUse == 2)
-            {
-                // Slow ability
-                spawn.GetComponent<Spawn>().SetPulsing(false);
-                TimeSlowAbility();
 
             }
             else if(abilityInUse == 3)

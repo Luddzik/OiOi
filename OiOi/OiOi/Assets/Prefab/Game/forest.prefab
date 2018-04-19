@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 95824815864032330}
   - component: {fileID: 82353739277167310}
   - component: {fileID: 135265775582419630}
+  - component: {fileID: 114807684538684058}
   m_Layer: 0
   m_Name: forest
   m_TagString: Planet
@@ -286,6 +287,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbce8d00054f04dce815ee5b85ccf276, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114807684538684058
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1367981487395352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!135 &135265775582419630

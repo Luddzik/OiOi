@@ -26,22 +26,19 @@ namespace UnityEngine.XR.iOS
 		{
             gameManager = GameObject.FindWithTag("GameManager");
             spawn = GameObject.Find("SpawnPlatform");
-
-            for (int i = 0; i < 10; i++)
-            {
-                if(spawn.GetComponent<Spawn>().GetPlanetTransform(i) == this.transform.position)
-                {
-                    startPlanetPos = this.transform.position;
-                    planetLoc = i;
-                }
-            }
 		}
+
+        public void SetPlanetLoc(int i)
+        {
+            planetLoc = i;
+            startPlanetPos = spawn.GetComponent<Spawn>().GetPlanetTransform(i);
+        }
 
 		IEnumerator Spread()
         {
             while (gameManager.GetComponent<GameManager>().NumberOfInfected() < 10)
             {
-                yield return new WaitForSeconds(Random.Range(0.0f, 5.0f));
+                yield return new WaitForSeconds(Random.Range(2.0f, 10.0f));
 
                 if (this.gameObject.tag == "Infected")
                 {
@@ -51,7 +48,7 @@ namespace UnityEngine.XR.iOS
 
                     endPlanetPos = gameManager.GetComponent<GameManager>().DestinationPlanetPos(projectile);
 
-                    distance = Vector3.Distance(startPlanetPos, endPlanetPos);
+                    distance = gameManager.GetComponent<GameManager>().DistanceBetween(projectile);
 
                     speed = gameManager.GetComponent<GameManager>().GetSpeed();
 
