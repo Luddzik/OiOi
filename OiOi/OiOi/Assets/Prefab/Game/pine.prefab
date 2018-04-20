@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 82065176385774908}
   - component: {fileID: 135976537581746300}
   - component: {fileID: 114862672420870590}
+  - component: {fileID: 114422297979356280}
   m_Layer: 0
   m_Name: pine
   m_TagString: Planet
@@ -263,6 +264,19 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114422297979356280
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1410238728658780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e959d9af215e4d41a95d861c936d9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForce: 100
+  damping: 2
 --- !u!114 &114826713521598180
 MonoBehaviour:
   m_ObjectHideFlags: 1

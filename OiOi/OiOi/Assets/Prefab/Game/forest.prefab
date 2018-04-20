@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 82353739277167310}
   - component: {fileID: 135265775582419630}
   - component: {fileID: 114807684538684058}
+  - component: {fileID: 114574410777212348}
   m_Layer: 0
   m_Name: forest
   m_TagString: Planet
@@ -278,6 +279,19 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114574410777212348
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1367981487395352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e959d9af215e4d41a95d861c936d9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForce: 100
+  damping: 2
 --- !u!114 &114693933991633582
 MonoBehaviour:
   m_ObjectHideFlags: 1

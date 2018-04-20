@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 82963408479388068}
   - component: {fileID: 135128874228466404}
   - component: {fileID: 114508723252568610}
+  - component: {fileID: 114643812643204880}
   m_Layer: 0
   m_Name: havay
   m_TagString: Planet
@@ -300,6 +301,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114643812643204880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1901988509899300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e959d9af215e4d41a95d861c936d9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForce: 100
+  damping: 2
 --- !u!135 &135128874228466404
 SphereCollider:
   m_ObjectHideFlags: 1

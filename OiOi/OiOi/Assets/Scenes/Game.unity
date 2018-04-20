@@ -1074,7 +1074,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 769249d610b3b469e9714e494601abda, type: 2}
   - {fileID: 2100000, guid: d0f9e86e777dc4afb83a17c5540fc5b5, type: 2}
   - {fileID: 2100000, guid: 5018827595f9e434e9363a237309ae18, type: 2}
-  - {fileID: 2100000, guid: 2a92db4cab5584305b185e65172735ca, type: 2}
+  - {fileID: 0}
   bombPrefab: {fileID: 1982672774675678, guid: a20dcbf490aec4374aba0b56b12b3bdb, type: 2}
   pathPrefab: {fileID: 1776281482631784, guid: 0e1edc78ac70c4d9b90f1f392bb3edac, type: 2}
   projectilePrefab: {fileID: 1444340780817450, guid: ae045b6ba49bc464f9d9931e610d91ae,
@@ -1083,6 +1083,8 @@ MonoBehaviour:
   abilitySpawn: {fileID: 304016002}
   goodSFX: {fileID: 8300000, guid: 1274eb00097e14cd2ae7b759b6326f28, type: 3}
   badSFX: {fileID: 8300000, guid: 6e73dd8cb92aa4dedb27c149b3505e4c, type: 3}
+  force: 20
+  forceOffset: 0.1
   m_HitTransform: {fileID: 1286139108}
   maxRayDistance: 30
   collisionLayer:

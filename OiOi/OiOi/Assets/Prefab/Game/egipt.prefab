@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 82139004535483298}
   - component: {fileID: 135434693904640112}
   - component: {fileID: 114959508026314616}
+  - component: {fileID: 114518179742083568}
   m_Layer: 0
   m_Name: egipt
   m_TagString: Planet
@@ -263,6 +264,19 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114518179742083568
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1337486012435814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e959d9af215e4d41a95d861c936d9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForce: 100
+  damping: 2
 --- !u!114 &114870906129691820
 MonoBehaviour:
   m_ObjectHideFlags: 1

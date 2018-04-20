@@ -1,8 +1,4 @@
-﻿//using System;
-using System.Collections;
-using System.Collections.Generic;
-//using UnityEditor.UI;
-using UnityEngine.EventSystems;
+﻿using System.Collections.Generic;
 
 namespace UnityEngine.XR.iOS
 {
@@ -21,6 +17,10 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private AudioClip goodSFX;
         [SerializeField] private AudioClip badSFX;
 
+        // Mesh deformation
+        [SerializeField] private float force = 20.0f;
+        [SerializeField] private float forceOffset = 0.1f;
+
         private GameObject[] planet;
         private GameObject[] path;
 
@@ -38,6 +38,7 @@ namespace UnityEngine.XR.iOS
         public Transform m_HitTransform;
         public float maxRayDistance = 30.0f;
         public LayerMask collisionLayer = 1 << 10;  //ARKitPlane layer
+
 
 		public void SetPlanetStatus (int i, bool status)
         {
@@ -532,6 +533,24 @@ namespace UnityEngine.XR.iOS
             return projReturn;
         }
 
+        void HandleInput()
+        {
+            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(inputRay, out hit))
+            {
+                MeshDeformer deformer = hit.collider.GetComponent<MeshDeformer>();
+
+                if (deformer)
+                {
+                    Vector3 point = hit.point;
+                    point += hit.normal * forceOffset;
+                    deformer.AddDeformingForce(point, force);
+                }
+            }
+        }
+
         void Update()
         {
             if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
@@ -586,6 +605,8 @@ namespace UnityEngine.XR.iOS
 
                             if (ab == 3 && hit.collider.tag == "Planet")
                             {
+                                HandleInput();
+
                                 pulsingAbility = false;
                                 gameManager.GetComponent<GameManager>().ShieldPlanet(number);
                                 gameManager.GetComponent<GameManager>().DoAbility();
@@ -594,6 +615,8 @@ namespace UnityEngine.XR.iOS
                             }
                             else if (ab == 2 && (hit.collider.tag == "Shielded" || hit.collider.tag == "Planet" || hit.collider.tag == "Projectile"))
                             {
+                                HandleInput();
+
                                 pulsingAbility = false;
                                 gameManager.GetComponent<GameManager>().DoAbility();
                                 abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
@@ -601,6 +624,8 @@ namespace UnityEngine.XR.iOS
                         }
                         else if (hit.collider.tag == "Planet")
                         {
+                            HandleInput();
+
                             int z = ability[number];
                             // using ability
                             int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
