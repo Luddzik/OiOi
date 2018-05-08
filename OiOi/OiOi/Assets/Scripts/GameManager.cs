@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -11,11 +11,11 @@ namespace UnityEngine.XR.iOS
 
         [SerializeField] private Text healthyPlanets;
         [SerializeField] private Text infPlanets;
-
+        
         [SerializeField] private GameObject ability;
-
+        
         private List<int> infectedPlanets = new List<int>();
-
+        
         // Spread planet, able to have 5 shots at a time
         private bool[] availableProjectile = new bool[5];
         private float[] between = new float[5];
