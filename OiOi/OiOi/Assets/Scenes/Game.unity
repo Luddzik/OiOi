@@ -1059,12 +1059,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planetPrefab:
-  - {fileID: 1337486012435814, guid: 76641e123f07a43d5824a6c04dc6db0c, type: 2}
-  - {fileID: 1367981487395352, guid: dbbb12cd5c5ba47a3be7617ec37487ad, type: 2}
-  - {fileID: 1901988509899300, guid: f32bd830bd8ae4e2d8ac7169079a2cf6, type: 2}
-  - {fileID: 1528654261951906, guid: 470dca03b44504ab5a4e96173b5ce1ff, type: 2}
-  - {fileID: 1902612903155670, guid: 12528de311e114ed0a4cef999ee6af0a, type: 2}
-  - {fileID: 1410238728658780, guid: 011a23199acb9494690e41b2cb736cd5, type: 2}
+  - {fileID: 1176603118651146, guid: 76641e123f07a43d5824a6c04dc6db0c, type: 2}
+  - {fileID: 1345653545674960, guid: dbbb12cd5c5ba47a3be7617ec37487ad, type: 2}
+  - {fileID: 1202655232955490, guid: f32bd830bd8ae4e2d8ac7169079a2cf6, type: 2}
+  - {fileID: 1203710899675490, guid: 470dca03b44504ab5a4e96173b5ce1ff, type: 2}
+  - {fileID: 1868220906709936, guid: 12528de311e114ed0a4cef999ee6af0a, type: 2}
+  - {fileID: 1297557571742970, guid: 725a254de47cc462585c5c7613e6f589, type: 2}
   planetMaterial:
   - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
   - {fileID: 2100000, guid: 1e42d4fdafbf34607b5abb3c22ad0a1d, type: 2}
