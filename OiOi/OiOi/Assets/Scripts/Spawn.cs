@@ -6,11 +6,12 @@ namespace UnityEngine.XR.iOS
     {
         [SerializeField] private GameObject[] planetPrefab;
         [SerializeField] private Material[] planetMaterial;
-        [SerializeField] private Material[] abilitiesMaterial;
+        //[SerializeField] private Material[] abilitiesMaterial;
 
         [SerializeField] private GameObject bombPrefab;
         [SerializeField] private GameObject pathPrefab;
         [SerializeField] private GameObject projectilePrefab;
+
         [SerializeField] private GameObject gameManager;
         [SerializeField] private GameObject abilitySpawn;
 
@@ -35,10 +36,30 @@ namespace UnityEngine.XR.iOS
 
         private int oneOff = 0;
 
+        // is menu open?
+        private bool menuON = true;
+
+        // play tutorial?
+        private bool tutorial = false;
+
         public Transform m_HitTransform;
         public float maxRayDistance = 30.0f;
         public LayerMask collisionLayer = 1 << 10;  //ARKitPlane layer
 
+        public bool IsWorldSpawn()
+        {
+            return worldSpawn;
+        }
+
+        public void SetTutorialStatus(bool status)
+        {
+            tutorial = status;
+        }
+
+        public void SetMenuToggle(bool status)
+        {
+            menuON = status;
+        }
 
 		public void SetPlanetStatus (int i, bool status)
         {
@@ -72,25 +93,40 @@ namespace UnityEngine.XR.iOS
 
         public void SetPlanetGood(int i)
         {
-            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
-            planet[i].transform.tag = "Planet";
+            int counter = 0;
 
-            planet[i].GetComponent<AudioSource>().Stop();
-            planet[i].GetComponent<AudioSource>().clip = goodSFX;
-            planet[i].GetComponent<AudioSource>().Play();
-
-            bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(i);
-            if (b)
+            for (int j = 0; j < 5; j++)
             {
-                NewAbility(i);
-                gameManager.GetComponent<GameManager>().RemoveInfected(i);
+                Vector3 projectilePlanet = gameManager.GetComponent<GameManager>().DestinationPlanetPos(j);
+                if(Vector3.Distance(planet[i].transform.position, projectilePlanet) < 1)
+                {
+                    counter++;
+                }
+            }
+
+            if(counter == 5)
+            {
+                planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
+                planet[i].transform.tag = "Planet";
+
+                planet[i].GetComponent<AudioSource>().Stop();
+                planet[i].GetComponent<AudioSource>().clip = goodSFX;
+                planet[i].GetComponent<AudioSource>().Play();
+
+                bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(i);
+                if (b)
+                {
+                    NewAbility(i);
+                    gameManager.GetComponent<GameManager>().RemoveInfected(i);
+                }
             }
         }
 
         public void SetPlanetShield(int i)
         {
-            planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
-            planet[i].transform.tag = "Shielded";
+            planet[i].GetComponent<Planet>().ShieldStatus(true);
+            //planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
+            //planet[i].transform.tag = "Shielded";
         }
 
         public void SetPlanetWarning (int i)
@@ -111,7 +147,8 @@ namespace UnityEngine.XR.iOS
             planet[i].GetComponent<AudioSource>().clip = badSFX;
             planet[i].GetComponent<AudioSource>().Play();
 
-            ability[i] = 4;
+            ability[i] = 0;
+            planet[i].GetComponent<Planet>().DeactivateAbilities();
 
             gameManager.GetComponent<GameManager>().AddInfected(i);
             
@@ -187,36 +224,40 @@ namespace UnityEngine.XR.iOS
                     ability[i] = x;
                     if (x == 0)
                     {
-                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+                        planet[i].GetComponent<Planet>().DeactivateAbilities();
+                        //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
                         //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
                         //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[x]);
                     }
                     else if(x == 1)
                     {
-                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        planet[i].GetComponent<Planet>().TimeAbilityStatus(true);
+                        //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                         //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                     }
                     else if(x == 2)
                     {
-                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        planet[i].GetComponent<Planet>().BombAbilityStatus(true);
+                        //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                         //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                     }
                     else if(x == 3)
                     {
-                        planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                        planet[i].GetComponent<Planet>().ShieldAbilityStatus(true);
+                        //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                         //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                        planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                        //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                     }
 
                 }
-                else
+                /*else
                 {
                     ability[i] = 4;
                     planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                     planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[3]);
-                }
+                }*/
             }
         }
 
@@ -228,42 +269,49 @@ namespace UnityEngine.XR.iOS
                 ability[i] = x;
                 if (x == 0)
                 {
-                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+                    planet[i].GetComponent<Planet>().DeactivateAbilities();
+                    //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
                     //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
                     //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[x]);
                 }
                 else if (x == 1)
                 {
-                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    planet[i].GetComponent<Planet>().TimeAbilityStatus(true);
+                    //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                     //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                 }
                 else if (x == 2)
                 {
-                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    planet[i].GetComponent<Planet>().BombAbilityStatus(true);
+                    //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                     //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                 }
                 else if (x == 3)
                 {
-                    planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
+                    planet[i].GetComponent<Planet>().ShieldAbilityStatus(true);
+                    //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                     //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(true);
-                    planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
+                    //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[(x - 1)]);
                 }
 
             }
-            else
+            /*else
             {
                 ability[i] = 4;
                 planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(true);
                 planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[3]);
-            }
+            }*/
         }
 
         public void RemoveAbility(int i)
         {
             ability[i] = 0;
-            planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
+
+            planet[i].GetComponent<Planet>().DeactivateAbilities();
+
+            //planet[i].GetComponentInChildren<Transform>().Find("Ability").gameObject.SetActive(false);
             //planet[i].GetComponentInChildren<AbilityBall>().UpdateStatus(false);
             //planet[i].GetComponentInChildren<AbilityBall>().UpdateMaterial(abilitiesMaterial[0]);
         }
@@ -271,6 +319,28 @@ namespace UnityEngine.XR.iOS
         public int GetAbility(int i)
         {
             return ability[i];
+        }
+
+        public void SetAbility(int pl, int i)
+        {
+            ability[pl] = i;
+
+            if (i == 0)
+            {
+                planet[pl].GetComponent<Planet>().DeactivateAbilities();
+            }
+            else if (i == 1)
+            {
+                planet[pl].GetComponent<Planet>().TimeAbilityStatus(true);
+            }
+            else if (i == 2)
+            {
+                planet[pl].GetComponent<Planet>().BombAbilityStatus(true);
+            }
+            else if (i == 3)
+            {
+                planet[pl].GetComponent<Planet>().ShieldAbilityStatus(true);
+            }
         }
 
         public int Spread(int i)
@@ -385,7 +455,15 @@ namespace UnityEngine.XR.iOS
 
                     PlanetsSpawn();
 
-                    gameManager.GetComponent<GameManager>().StartCoroutine("GameSequence");
+                    if(tutorial)
+                    {
+                        gameManager.GetComponent<GameManager>().StartCoroutine("GameSequence"); 
+                    }
+                    else
+                    {
+                        gameManager.GetComponent<GameManager>().StartCoroutine("GameStart");
+                    }
+
 
                     //Debug.Log (string.Format ("x:{0:0.######} y:{1:0.######} z:{2:0.######}", m_HitTransform.position.x, m_HitTransform.position.y, m_HitTransform.position.z));
                     return true;
@@ -553,7 +631,7 @@ namespace UnityEngine.XR.iOS
 
         void Update()
         {
-            if ((Input.touchCount > 0 && m_HitTransform != null) /*&& !worldSpawn*/)
+            if ((Input.touchCount > 0 && m_HitTransform != null) && !menuON /*&& !worldSpawn*/)
             {
                 var touch = Input.GetTouch(0);
                 if ((touch.phase == TouchPhase.Began ))//|| touch.phase == TouchPhase.Moved))

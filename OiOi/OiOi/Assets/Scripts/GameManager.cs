@@ -44,6 +44,8 @@ namespace UnityEngine.XR.iOS
 
         private float speed;
 
+        private bool worldSpawn;
+
         IEnumerator GameSequence()
         {
             // Set spawn location of ability (0.1f above the spawn location)
@@ -54,6 +56,24 @@ namespace UnityEngine.XR.iOS
             spawnPos = tempPos;
 
             SetUpProjectiles();
+
+            /* Tutorial Sequence
+             * 1. Spawning Location
+             * 2. Planet Intro
+             * 3. Infection Intro
+             * 4. Spread & Projectile Shoot intro
+             * 5. Abilities Intro
+             * Game Start
+             */
+
+            // Scan area until you are able to place a spawning plate
+
+            // 1. tutorial UI text
+            ui.GetComponent<Interface>().TutorialOne();
+
+            yield return new WaitUntil(() => IsWorldSpawn());
+
+            ui.GetComponent<Interface>().TutorialButtonActive();
 
             // First planet introduction
             Vector3 planetLoc = spawn.GetComponent<Spawn>().m_HitTransform.position;
@@ -73,8 +93,8 @@ namespace UnityEngine.XR.iOS
             speed = x.magnitude;
             //spawn.GetComponent<Spawn>().SetPlanetPosition(0, planetEndPos);
 
-            // Show intro text
-            ui.GetComponent<Interface>().TutorialOne();
+            // 2. Show planet intro text
+            ui.GetComponent<Interface>().TutorialTwo();
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
@@ -96,19 +116,13 @@ namespace UnityEngine.XR.iOS
                 yield return new WaitForSeconds(0.05f);
             }
 
-            // Show next button
-            //ui.GetComponent<Interface>().TutorialTextOn();
-
-
             spawn.GetComponent<Spawn>().SetPlanetPosition(0, planetEndPos);
 
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitUntil(ButtonClicked);
+            //yield return new WaitForSeconds(1.0f);
 
-            //yield return new WaitUntil(ButtonClicked);
-
-            //tutorialClick = false;
-
-            // Infection introduction
+            tutorialClick = false;
+            // 3. Infection introduction
 
             planetLoc = spawn.GetComponent<Spawn>().m_HitTransform.position;
             planetEndPos = spawn.GetComponent<Spawn>().GetPlanetTransform(1);
@@ -148,7 +162,8 @@ namespace UnityEngine.XR.iOS
                 yield return new WaitForSeconds(0.05f);
             }
 
-            // Show infected text
+            // 3.1. Show infected text
+            ui.GetComponent<Interface>().TutorialThree();
 
             spawn.GetComponent<Spawn>().SetPlanetPosition(1, planetEndPos);
 
@@ -156,17 +171,16 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().SetPlanetBad(1);
 
-            // Show next button
-            ui.GetComponent<Interface>().TutorialTextOn();
+            // 3.2. Show next button
 
             yield return new WaitUntil(ButtonClicked);
 
             tutorialClick = false;
 
             // Path Display
-            // Path Text
+            // 4. Path Text
 
-            ui.GetComponent<Interface>().TutorialThree();
+            ui.GetComponent<Interface>().TutorialFour();
 
             spawn.GetComponent<Spawn>().CreatePath(0, 1, 0);
 
@@ -176,19 +190,12 @@ namespace UnityEngine.XR.iOS
                 yield return new WaitForSeconds(0.5f);
             }
 
-            // Warning Planet - Change text to warning planet
-            // Show button
-            //ui.GetComponent<Interface>().TutorialTextOn();
-
+            // Warning Planet
             spawn.GetComponent<Spawn>().SetPlanetWarning(0);
-
-            //yield return new WaitUntil(ButtonClicked);
-
-            //tutorialClick = false;
 
             yield return new WaitForSeconds(1.0f);
 
-            // Projectile Shoot - Change text to explain projectile and to shoot projectile
+            // 4.1. Projectile Shoot - Change text to explain projectile and to shoot projectile
 
             Vector3 start = spawn.GetComponent<Spawn>().GetPlanetTransform(1);
 
@@ -222,7 +229,7 @@ namespace UnityEngine.XR.iOS
                 if (Vector3.Distance(start, destination) <= (distance / 3) && !tutorialClick)
                 {
                     spawn.GetComponent<Spawn>().SetPlanetBad(0);
-                    // Lost, Reset message
+                    // 4.1.1. Lost, Reset message
 
                     yield return new WaitForSeconds(2.0f);
 
@@ -240,24 +247,72 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().SetPlanetGood(0);
 
-            ui.GetComponent<Interface>().TutorialFour();
-
+            ui.GetComponent<Interface>().TutorialButtonActive();
             tutorialClick = false;
 
             yield return new WaitForSeconds(1.0f);
 
-            ui.GetComponent<Interface>().TutorialDeactivate();
+            // 5. Ability introduction. 3 planets each with ability. 
 
-            spawn.GetComponent<Spawn>().RefreshAbilities();
+            // Spawn 3 planets
+            // Get 3 different abilities on each planet
+            // Have ability chosen at the base when selected
+
+            // Time Ability
+            ui.GetComponent<Interface>().TutorialFive();
+
+            spawn.GetComponent<Spawn>().SetPlanetStatus(1, false);
+
+            spawn.GetComponent<Spawn>().SetAbility(0, 1);
+
+            yield return new WaitUntil(ButtonClicked);
+            tutorialClick = false;
+
+            // Bomb Ability
+            spawn.GetComponent<Spawn>().SetAbility(0, 2);
+
+            yield return new WaitUntil(ButtonClicked);
+            tutorialClick = false;
+
+            // Shield Ability
+            spawn.GetComponent<Spawn>().SetAbility(0, 3);
+
+            yield return new WaitUntil(ButtonClicked);
+            tutorialClick = false;
+
+            ui.GetComponent<Interface>().TutorialShield();
+
+            spawn.GetComponent<Spawn>().SetAbility(0, 0);
+            spawn.GetComponent<Spawn>().SetPlanetShield(0);
+
+            yield return new WaitUntil(ButtonClicked);
+            tutorialClick = false;
+
+            ui.GetComponent<Interface>().TutorialEight();
+
+            //ui.GetComponent<Interface>().TutorialDeactivate();
+
+            //spawn.GetComponent<Spawn>().RefreshAbilities();
 
             yield return new WaitForSeconds(1.0f);
 
-            StartCoroutine("GameStart");
+            //StartCoroutine("GameStart");
 
         }
 
         IEnumerator GameStart()
         {
+            speed = 1.0f * Time.deltaTime; 
+
+            // Set spawn location of ability (0.1f above the spawn location)
+            spawnPos = spawn.GetComponent<Spawn>().m_HitTransform.position;
+
+            Vector3 tempPos = new Vector3(spawnPos.x, spawnPos.y + 0.1f, spawnPos.z);
+
+            spawnPos = tempPos;
+
+            SetUpProjectiles();
+
             for (int i = 0; i < 10; i++)
             {
                 spawn.GetComponent<Spawn>().SetPlanetStatus(i, true);
@@ -285,6 +340,14 @@ namespace UnityEngine.XR.iOS
             {
                 spawn.GetComponent<Spawn>().BeginPlanetSpread(i);
             }
+
+            while(infectedPlanets.Count < 10)
+            {
+                spawn.GetComponent<Spawn>().RefreshAbilities();
+
+                yield return new WaitForSeconds(5.0f);
+            }
+
             //StartCoroutine("InfectionSpread");
         }
 
@@ -406,6 +469,11 @@ namespace UnityEngine.XR.iOS
         public Vector3 DestinationPlanetPos(int projectileLocation)
         {
             return edPlanet[projectileLocation];
+        }
+
+        public void ResetEndPlanet(int projectileLocation)
+        {
+            edPlanet[projectileLocation] = new Vector3(0,0,0);
         }
 
         public float DistanceBetween(int projectileLoc)
@@ -635,6 +703,12 @@ namespace UnityEngine.XR.iOS
         bool ButtonClicked()
         {
             return tutorialClick;
+        }
+
+        bool IsWorldSpawn()
+        {
+            worldSpawn = spawn.GetComponent<Spawn>().IsWorldSpawn();
+            return worldSpawn;
         }
     }
 }

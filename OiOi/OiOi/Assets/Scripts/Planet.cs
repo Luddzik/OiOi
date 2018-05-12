@@ -9,6 +9,11 @@ namespace UnityEngine.XR.iOS
         private GameObject gameManager;
         private GameObject spawn;
 
+        private GameObject shielded;
+        private GameObject shieldAbility;
+        private GameObject bombAbility;
+        private GameObject timeAbility;
+
         private int projectile;
 
         private int planetLoc;
@@ -26,7 +31,44 @@ namespace UnityEngine.XR.iOS
 		{
             gameManager = GameObject.FindWithTag("GameManager");
             spawn = GameObject.Find("SpawnPlatform");
+
+            shielded = this.transform.Find("Shielded").gameObject;
+            shieldAbility = this.transform.Find("ShieldAbility").gameObject;
+            bombAbility = this.transform.Find("BombAbility").gameObject;
+            timeAbility = this.transform.Find("TimeSlowAbility").gameObject;
+
+            shielded.SetActive(false);
+            shieldAbility.SetActive(false);
+            bombAbility.SetActive(false);
+            timeAbility.SetActive(false);
 		}
+
+        public void ShieldStatus(bool status)
+        {
+            shielded.SetActive(status);
+        }
+
+        public void ShieldAbilityStatus(bool status)
+        {
+            shieldAbility.SetActive(status);
+        }
+
+        public void BombAbilityStatus(bool status)
+        {
+            bombAbility.SetActive(status);
+        }
+
+        public void TimeAbilityStatus(bool status)
+        {
+            timeAbility.SetActive(status);
+        }
+
+        public void DeactivateAbilities()
+        {
+            shieldAbility.SetActive(false);
+            bombAbility.SetActive(false);
+            timeAbility.SetActive(false);
+        }
 
         public void SetPlanetLoc(int i)
         {
@@ -38,7 +80,7 @@ namespace UnityEngine.XR.iOS
         {
             while (gameManager.GetComponent<GameManager>().NumberOfInfected() < 10)
             {
-                yield return new WaitForSeconds(Random.Range(2.0f, 10.0f));
+                yield return new WaitForSeconds(Random.Range(4.0f, 10.0f));
 
                 if (this.gameObject.tag == "Infected")
                 {
@@ -81,6 +123,7 @@ namespace UnityEngine.XR.iOS
                             if (spawn.GetComponent<Spawn>().GetPlanetHealth(nextInfection) == "Planet")
                             {
                                 spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
+                                gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
                             }
                             gameManager.GetComponent<GameManager>().InfectedProjectileDeactivate(projectile);
                         }
@@ -89,6 +132,8 @@ namespace UnityEngine.XR.iOS
 
                         yield return new WaitForSeconds(0.05f);
                     }
+
+                    gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
                 }
 
             }
