@@ -9,10 +9,12 @@ namespace UnityEngine.XR.iOS
         private GameObject gameManager;
         private GameObject spawn;
 
-        private GameObject shielded;
-        private GameObject shieldAbility;
-        private GameObject bombAbility;
-        private GameObject timeAbility;
+        [SerializeField] private Material[] planetMat;
+
+        [SerializeField] private GameObject shielded;
+        [SerializeField] private GameObject shieldAbility;
+        [SerializeField] private GameObject bombAbility;
+        [SerializeField] private GameObject timeAbility;
 
         private int projectile;
 
@@ -31,16 +33,6 @@ namespace UnityEngine.XR.iOS
 		{
             gameManager = GameObject.FindWithTag("GameManager");
             spawn = GameObject.Find("SpawnPlatform");
-
-            shielded = this.transform.Find("Shielded").gameObject;
-            shieldAbility = this.transform.Find("ShieldAbility").gameObject;
-            bombAbility = this.transform.Find("BombAbility").gameObject;
-            timeAbility = this.transform.Find("TimeSlowAbility").gameObject;
-
-            shielded.SetActive(false);
-            shieldAbility.SetActive(false);
-            bombAbility.SetActive(false);
-            timeAbility.SetActive(false);
 		}
 
         public void ShieldStatus(bool status)
@@ -70,10 +62,10 @@ namespace UnityEngine.XR.iOS
             timeAbility.SetActive(false);
         }
 
-        public void SetPlanetLoc(int i)
+        public void SetPlanetLoc(int i, Vector3 pos)
         {
             planetLoc = i;
-            startPlanetPos = spawn.GetComponent<Spawn>().GetPlanetTransform(i);
+            startPlanetPos = pos;
         }
 
 		IEnumerator Spread()
@@ -86,58 +78,99 @@ namespace UnityEngine.XR.iOS
                 {
                     projectile = gameManager.GetComponent<GameManager>().GetProjectile();
 
-                    gameManager.GetComponent<GameManager>().ProjectileSet(planetLoc, projectile);
-
-                    endPlanetPos = gameManager.GetComponent<GameManager>().DestinationPlanetPos(projectile);
-
-                    distance = gameManager.GetComponent<GameManager>().DistanceBetween(projectile);
-
-                    speed = gameManager.GetComponent<GameManager>().GetSpeed();
-
-                    for (int n = (projectile * 10); n < (projectile * 10) + 10; n++)
+                    if(projectile < 5)
                     {
-                        spawn.GetComponent<Spawn>().ActivatePath(n);
-                        yield return new WaitForSeconds(0.5f);
-                    }
+                        gameManager.GetComponent<GameManager>().ProjectileSet(planetLoc, projectile);
 
-                    yield return new WaitForSeconds(1.0f);
+                        endPlanetPos = gameManager.GetComponent<GameManager>().DestinationPlanetPos(projectile);
 
-                    bool fly = spawn.GetComponent<Spawn>().GetProjectileStatus(projectile);
+                        distance = gameManager.GetComponent<GameManager>().DistanceBetween(projectile);
 
-                    spawn.GetComponent<Spawn>().ProjectileSound(projectile);
-
-                    startPos = startPlanetPos;
-
-                    int nextInfection = gameManager.GetComponent<GameManager>().DestPlanet(projectile);
-
-                    while (fly)
-                    {
                         speed = gameManager.GetComponent<GameManager>().GetSpeed();
 
-                        spawn.GetComponent<Spawn>().SetProjectileLocation(projectile, Vector3.Lerp(startPos, endPlanetPos, speed));
 
-                        startPos = spawn.GetComponent<Spawn>().GetProjectileLocation(projectile);
+                        //spawn.GetComponent<Spawn>().ActivatePath(projectile);
 
-                        if (Vector3.Distance(startPos, endPlanetPos) <= distance / 10)
+                        for (int i = (projectile * 10); i < (projectile * 10) + 10; i++)
                         {
-                            if (spawn.GetComponent<Spawn>().GetPlanetHealth(nextInfection) == "Planet")
-                            {
-                                spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
-                                gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
-                            }
-                            gameManager.GetComponent<GameManager>().InfectedProjectileDeactivate(projectile);
+                            spawn.GetComponent<Spawn>().ActivatePath(i);
+                            yield return new WaitForSeconds(0.5f);
                         }
 
-                        fly = spawn.GetComponent<Spawn>().GetProjectileStatus(projectile);
 
-                        yield return new WaitForSeconds(0.05f);
+                        yield return new WaitForSeconds(1.0f);
+
+                        bool fly = spawn.GetComponent<Spawn>().GetProjectileStatus(projectile);
+
+                        spawn.GetComponent<Spawn>().ProjectileSound(projectile);
+
+                        startPos = startPlanetPos;
+
+                        int nextInfection = gameManager.GetComponent<GameManager>().DestPlanet(projectile);
+
+                        while (fly)
+                        {
+                            speed = gameManager.GetComponent<GameManager>().GetSpeed();
+
+                            spawn.GetComponent<Spawn>().SetProjectileLocation(projectile, Vector3.Lerp(startPos, endPlanetPos, speed));
+
+                            startPos = spawn.GetComponent<Spawn>().GetProjectileLocation(projectile);
+
+                            //spawn.GetComponent<Spawn>().SetPlanetWarning(nextInfection);
+
+                            if (Vector3.Distance(startPos, endPlanetPos) <= distance / 10)
+                            {
+                                if (spawn.GetComponent<Spawn>().GetPlanetHealth(nextInfection) == "Planet")
+                                {
+                                    spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
+                                    gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
+                                }
+                                gameManager.GetComponent<GameManager>().InfectedProjectileDeactivate(projectile);
+                            }
+
+                            fly = spawn.GetComponent<Spawn>().GetProjectileStatus(projectile);
+
+                            yield return new WaitForSeconds(0.05f);
+                        }
+
+                        gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile); 
                     }
 
-                    gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
                 }
 
             }
         }
 
-    }
+		private void Update()
+		{
+            if(this.gameObject.tag == "Planet")
+            {
+                shielded.SetActive(false);
+                // set healthy material
+                this.gameObject.GetComponent<Renderer>().material = new Material(planetMat[0]);
+                bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(planetLoc);
+                if (b)
+                {
+                    gameManager.GetComponent<GameManager>().RemoveInfected(planetLoc);
+                }
+            }
+            else if(this.gameObject.tag == "Infected")
+            {
+                // Set infected material
+                this.gameObject.GetComponent<Renderer>().material = new Material(planetMat[1]);
+
+                bool b = gameManager.GetComponent<GameManager>().InfectedPlanetListContain(planetLoc);
+                if(!b)
+                {
+                    gameManager.GetComponent<GameManager>().AddInfected(planetLoc);
+                }
+            }
+            else if(this.gameObject.tag == "Shielded")
+            {
+                // Set shield material
+                this.gameObject.GetComponent<Renderer>().material = new Material(planetMat[0]);
+                shielded.SetActive(true);
+            }
+		}
+	}
 }

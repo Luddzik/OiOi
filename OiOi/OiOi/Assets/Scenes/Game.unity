@@ -2751,11 +2751,11 @@ MonoBehaviour:
   tutorialScreen: {fileID: 1814926129}
   gameScreen: {fileID: 923007165}
   tutorialNextButton: {fileID: 1668754373}
-  tutorialComplete: {fileID: 0}
+  tutorialComplete: {fileID: 1668754373}
   textBg: {fileID: 1675509904}
-  tutText: {fileID: 0}
-  helpDescription: {fileID: 0}
-  pauseDescription: {fileID: 0}
+  tutText: {fileID: 1165838222}
+  helpDescription: {fileID: 1332469130}
+  pauseDescription: {fileID: 1332469130}
   startGame: {fileID: 1287114977}
 --- !u!1 &1534850150
 GameObject:
@@ -3203,7 +3203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1814926130
 RectTransform:
   m_ObjectHideFlags: 0

@@ -53,9 +53,11 @@ GameObject:
   - component: {fileID: 23920789992520376}
   - component: {fileID: 64684649278225686}
   - component: {fileID: 95338376603352438}
+  - component: {fileID: 114230464853293990}
+  - component: {fileID: 114893328650368476}
   m_Layer: 0
   m_Name: forest
-  m_TagString: Untagged
+  m_TagString: Planet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -386,6 +388,37 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114230464853293990
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1345653545674960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  planetMat:
+  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
+  - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
+  shielded: {fileID: 1848723674517032}
+  shieldAbility: {fileID: 1848723674517032}
+  bombAbility: {fileID: 1527730936215482}
+  timeAbility: {fileID: 1054378388241960}
+--- !u!114 &114893328650368476
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1345653545674960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e959d9af215e4d41a95d861c936d9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForce: 100
+  damping: 2
 --- !u!198 &198018516352742490
 ParticleSystem:
   m_ObjectHideFlags: 1

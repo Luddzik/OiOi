@@ -473,6 +473,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  planetMat:
+  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
+  - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
+  shielded: {fileID: 1295930224121618}
+  shieldAbility: {fileID: 1295930224121618}
+  bombAbility: {fileID: 1315814498843182}
+  timeAbility: {fileID: 1290582400110622}
 --- !u!114 &114716866260488204
 MonoBehaviour:
   m_ObjectHideFlags: 1

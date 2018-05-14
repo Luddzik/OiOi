@@ -33,7 +33,7 @@ namespace UnityEngine.XR.iOS
         //private int shieldAbility = 0;
         private bool waitForPress = false;
         private bool shieldActive = false;
-        private bool shieldActived = false;
+        //private bool shieldActived = false;
 
         private bool abilityActive = false;
         private int abilityInUse = 0;
@@ -45,6 +45,8 @@ namespace UnityEngine.XR.iOS
         private float speed;
 
         private bool worldSpawn;
+
+        private bool timeAbilityStarted = false;
 
         IEnumerator GameSequence()
         {
@@ -191,7 +193,7 @@ namespace UnityEngine.XR.iOS
             }
 
             // Warning Planet
-            spawn.GetComponent<Spawn>().SetPlanetWarning(0);
+            //spawn.GetComponent<Spawn>().SetPlanetWarning(0);
 
             yield return new WaitForSeconds(1.0f);
 
@@ -234,7 +236,7 @@ namespace UnityEngine.XR.iOS
                     yield return new WaitForSeconds(2.0f);
 
                     start = spawn.GetComponent<Spawn>().GetPlanetTransform(1);
-                    spawn.GetComponent<Spawn>().SetPlanetWarning(0);
+                    //spawn.GetComponent<Spawn>().SetPlanetWarning(0);
 
                     speed = 1.0f * Time.deltaTime;
                     //Time.timeScale = 1.0f;
@@ -288,6 +290,8 @@ namespace UnityEngine.XR.iOS
             yield return new WaitUntil(ButtonClicked);
             tutorialClick = false;
 
+            spawn.GetComponent<Spawn>().SetPlanetGood(0);
+
             ui.GetComponent<Interface>().TutorialEight();
 
             //ui.GetComponent<Interface>().TutorialDeactivate();
@@ -324,6 +328,8 @@ namespace UnityEngine.XR.iOS
                     }
                 }
 
+                spawn.GetComponent<Spawn>().BeginPlanetSpread(i);
+
                 yield return new WaitForSeconds(0.5f);
             }
 
@@ -336,16 +342,11 @@ namespace UnityEngine.XR.iOS
 
             yield return new WaitForSeconds(2.0f);
 
-            for (int i = 0; i < 10; i++)
-            {
-                spawn.GetComponent<Spawn>().BeginPlanetSpread(i);
-            }
-
             while(infectedPlanets.Count < 10)
             {
                 spawn.GetComponent<Spawn>().RefreshAbilities();
 
-                yield return new WaitForSeconds(5.0f);
+                yield return new WaitForSeconds(50.0f);
             }
 
             //StartCoroutine("InfectionSpread");
@@ -450,7 +451,7 @@ namespace UnityEngine.XR.iOS
 
             spawn.GetComponent<Spawn>().CreatePath(projectileLocation, startPlanet, nxtInf[projectileLocation]);
 
-            spawn.GetComponent<Spawn>().SetPlanetWarning(nxtInf[projectileLocation]);
+            //spawn.GetComponent<Spawn>().SetPlanetWarning(nxtInf[projectileLocation]);
 
             stPlanet[projectileLocation] = spawn.GetComponent<Spawn>().GetPlanetTransform(startPlanet);
 
@@ -552,9 +553,12 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
+ 
             if (slowActive)
             {
                 StopCoroutine("TimeSlow");
+                speed = 1.0f * Time.deltaTime;
+                slowActive = false;
             }
 
             StartCoroutine("TimeSlow");
@@ -562,25 +566,18 @@ namespace UnityEngine.XR.iOS
 
         public void ShieldAbility()
         {
+            
             if (shieldActive)
             {
                 shieldActive = false;
                 spawn.GetComponent<Spawn>().SetPlanetGood(sp);
                 spawn.GetComponent<Spawn>().SetPulsing(false);
-                speed = 1.0f * Time.deltaTime;
                 StopCoroutine("ShieldPlanet");
             }
-            else
-            {
-                shieldActive = true;
-                StartCoroutine("ShieldPlanet");
-            }
 
-        }
+            shieldActive = true;
+            StartCoroutine("ShieldPlanet");
 
-        public void BombAbilityUse()
-        {
-            spawn.GetComponent<Spawn>().BombAbility();
         }
 
         public void UpdateUI()
@@ -603,7 +600,7 @@ namespace UnityEngine.XR.iOS
             if(abilityActive)
             {
                 abilityInUse = ability.GetComponent<Ability>().UsingAbility();
-                DoAbility();
+                DoAbility(new Vector3(0,0,0));
             }
         }
 
@@ -614,6 +611,7 @@ namespace UnityEngine.XR.iOS
 
         IEnumerator TimeSlow()
         {
+
             slowActive = true;
 
             speed = 0.2f * Time.deltaTime;
@@ -632,11 +630,13 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetPlanetShield(sp);
             yield return new WaitForSeconds(5.0f);
 
+            //spawn.GetComponent<Spawn>().SetPlanetShield(sp, false);
+
             spawn.GetComponent<Spawn>().SetPlanetGood(sp);
             shieldActive = false;
         }
 
-		public void DoAbility()
+		public void DoAbility(Vector3 pos)
         {
             if(abilityInUse == 1)
             {
@@ -652,7 +652,7 @@ namespace UnityEngine.XR.iOS
                 if (waitForPress)
                 {
                     // Do Bomb Ability
-                    BombAbilityUse();
+                    spawn.GetComponent<Spawn>().BombAbility(pos);
                     spawn.GetComponent<Spawn>().SetPulsing(false);
                     waitForPress = false;
                 }
@@ -669,6 +669,7 @@ namespace UnityEngine.XR.iOS
                 {
                     // Do Shield Ability
                     ShieldAbility();
+                    spawn.GetComponent<Spawn>().SetPulsing(false);
                     waitForPress = false;
                 }
                 else

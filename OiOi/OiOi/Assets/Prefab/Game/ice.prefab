@@ -505,6 +505,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dad3c7bcd9bbe4e93bbef8a8f92debe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  planetMat:
+  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
+  - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
+  shielded: {fileID: 1493953153469258}
+  shieldAbility: {fileID: 1493953153469258}
+  bombAbility: {fileID: 1319551246936322}
+  timeAbility: {fileID: 1292133561105214}
 --- !u!135 &135393569756140112
 SphereCollider:
   m_ObjectHideFlags: 1
