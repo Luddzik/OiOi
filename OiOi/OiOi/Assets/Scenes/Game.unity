@@ -1065,10 +1065,6 @@ MonoBehaviour:
   - {fileID: 1203710899675490, guid: 470dca03b44504ab5a4e96173b5ce1ff, type: 2}
   - {fileID: 1868220906709936, guid: 12528de311e114ed0a4cef999ee6af0a, type: 2}
   - {fileID: 1297557571742970, guid: 725a254de47cc462585c5c7613e6f589, type: 2}
-  planetMaterial:
-  - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
-  - {fileID: 2100000, guid: 1e42d4fdafbf34607b5abb3c22ad0a1d, type: 2}
-  - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
   bombPrefab: {fileID: 1982672774675678, guid: a20dcbf490aec4374aba0b56b12b3bdb, type: 2}
   pathPrefab: {fileID: 1776281482631784, guid: 0e1edc78ac70c4d9b90f1f392bb3edac, type: 2}
   projectilePrefab: {fileID: 1444340780817450, guid: ae045b6ba49bc464f9d9931e610d91ae,

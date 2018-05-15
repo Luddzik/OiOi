@@ -55,7 +55,6 @@ GameObject:
   - component: {fileID: 4965559505959156}
   - component: {fileID: 33122024775498802}
   - component: {fileID: 23897637854272460}
-  - component: {fileID: 64488640412715806}
   - component: {fileID: 95468028661143302}
   - component: {fileID: 82060212837983858}
   - component: {fileID: 135393569756140112}
@@ -363,20 +362,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1203710899675490}
   m_Mesh: {fileID: 4300000, guid: 3efdfb47275bdf54583ae191f1a4ef7a, type: 3}
---- !u!64 &64488640412715806
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1203710899675490}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 4300000, guid: 3efdfb47275bdf54583ae191f1a4ef7a, type: 3}
 --- !u!82 &82060212837983858
 AudioSource:
   m_ObjectHideFlags: 1
@@ -508,7 +493,7 @@ MonoBehaviour:
   planetMat:
   - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
   - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
-  shielded: {fileID: 1493953153469258}
+  shielded: {fileID: 1846336651451388}
   shieldAbility: {fileID: 1493953153469258}
   bombAbility: {fileID: 1319551246936322}
   timeAbility: {fileID: 1292133561105214}

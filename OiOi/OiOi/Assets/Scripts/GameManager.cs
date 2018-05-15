@@ -553,7 +553,8 @@ namespace UnityEngine.XR.iOS
 
         public void TimeSlowAbility()
         {
- 
+            ability.GetComponent<Ability>().ResetAbility();
+
             if (slowActive)
             {
                 StopCoroutine("TimeSlow");
@@ -575,7 +576,7 @@ namespace UnityEngine.XR.iOS
                 StopCoroutine("ShieldPlanet");
             }
 
-            shieldActive = true;
+            //shieldActive = true;
             StartCoroutine("ShieldPlanet");
 
         }
@@ -585,7 +586,6 @@ namespace UnityEngine.XR.iOS
             int x = 10 - infectedPlanets.Count;
             healthyPlanets.text = x.ToString();
             infPlanets.text = infectedPlanets.Count.ToString();
-
         }
 
         public bool IsAbilityActive()
@@ -600,14 +600,14 @@ namespace UnityEngine.XR.iOS
             if(abilityActive)
             {
                 abilityInUse = ability.GetComponent<Ability>().UsingAbility();
-                DoAbility(new Vector3(0,0,0));
+                DoAbility(0);
             }
         }
 
-        public void ShieldPlanet(int no)
+        /*public void ShieldPlanet(int no)
         {
             sp = no;
-        }
+        }*/
 
         IEnumerator TimeSlow()
         {
@@ -627,8 +627,9 @@ namespace UnityEngine.XR.iOS
 
         IEnumerator ShieldPlanet()
         {
+            shieldActive = true;
             spawn.GetComponent<Spawn>().SetPlanetShield(sp);
-            yield return new WaitForSeconds(5.0f);
+            yield return new WaitForSeconds(15.0f);
 
             //spawn.GetComponent<Spawn>().SetPlanetShield(sp, false);
 
@@ -636,7 +637,7 @@ namespace UnityEngine.XR.iOS
             shieldActive = false;
         }
 
-		public void DoAbility(Vector3 pos)
+		public void DoAbility(int pl)
         {
             if(abilityInUse == 1)
             {
@@ -652,9 +653,9 @@ namespace UnityEngine.XR.iOS
                 if (waitForPress)
                 {
                     // Do Bomb Ability
-                    spawn.GetComponent<Spawn>().BombAbility(pos);
-                    spawn.GetComponent<Spawn>().SetPulsing(false);
                     waitForPress = false;
+                    spawn.GetComponent<Spawn>().SetPulsing(false);
+                    spawn.GetComponent<Spawn>().BombAbility(pl);
                 }
                 else
                 {
@@ -668,9 +669,10 @@ namespace UnityEngine.XR.iOS
                 if (waitForPress)
                 {
                     // Do Shield Ability
-                    ShieldAbility();
+                    sp = pl;
                     spawn.GetComponent<Spawn>().SetPulsing(false);
                     waitForPress = false;
+                    ShieldAbility();
                 }
                 else
                 {

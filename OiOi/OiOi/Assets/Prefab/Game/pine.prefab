@@ -476,7 +476,7 @@ MonoBehaviour:
   planetMat:
   - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
   - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
-  shielded: {fileID: 1295930224121618}
+  shielded: {fileID: 1572663143510714}
   shieldAbility: {fileID: 1295930224121618}
   bombAbility: {fileID: 1315814498843182}
   timeAbility: {fileID: 1290582400110622}

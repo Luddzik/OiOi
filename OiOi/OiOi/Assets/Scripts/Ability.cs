@@ -27,6 +27,11 @@ namespace UnityEngine.XR.iOS
             GetComponent<Renderer>().material = new Material(abilityMat[(ability - 1)]);
         }
 
+        public void ResetAbility()
+        {
+            abilityInUse = 0;
+        }
+
         public int UsingAbility()
         {
             return abilityInUse;

@@ -50,8 +50,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4946712075201334}
   - component: {fileID: 33373820366538356}
+  - component: {fileID: 135053640543058256}
   - component: {fileID: 23920789992520376}
-  - component: {fileID: 64684649278225686}
   - component: {fileID: 95338376603352438}
   - component: {fileID: 114230464853293990}
   - component: {fileID: 114893328650368476}
@@ -357,20 +357,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1345653545674960}
   m_Mesh: {fileID: 4300000, guid: 94e8b543ccfce214cbe3536377799049, type: 3}
---- !u!64 &64684649278225686
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1345653545674960}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 4300000, guid: 94e8b543ccfce214cbe3536377799049, type: 3}
 --- !u!95 &95338376603352438
 Animator:
   serializedVersion: 3
@@ -402,7 +388,7 @@ MonoBehaviour:
   planetMat:
   - {fileID: 2100000, guid: 7bf7680423b0d48ef982941f8725867f, type: 2}
   - {fileID: 2100000, guid: a298be08a063145039b880d55815a099, type: 2}
-  shielded: {fileID: 1848723674517032}
+  shielded: {fileID: 1118423617608684}
   shieldAbility: {fileID: 1848723674517032}
   bombAbility: {fileID: 1527730936215482}
   timeAbility: {fileID: 1054378388241960}
@@ -419,6 +405,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   springForce: 100
   damping: 2
+--- !u!135 &135053640543058256
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1345653545674960}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 11.044094
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!198 &198018516352742490
 ParticleSystem:
   m_ObjectHideFlags: 1

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 namespace UnityEngine.XR.iOS
 {
@@ -110,7 +112,7 @@ namespace UnityEngine.XR.iOS
 
         public void SetPlanetShield(int i)
         {
-            planet[i].transform.tag = "Shielded";
+            planet[i].tag = "Shielded";
             //planet[i].GetComponent<Planet>().ShieldStatus(state);
             //planet[i].GetComponent<Renderer>().material = new Material(planetMaterial[0]);
             //planet[i].transform.tag = "Shielded";
@@ -389,9 +391,9 @@ namespace UnityEngine.XR.iOS
             return choice;
         }
 
-        public void BombAbility(Vector3 pos)
+        public void BombAbility(int pos)
         {
-            bomb.transform.position = pos;
+            bomb.transform.position = planet[pos].transform.position;
 
             bomb.SetActive(true);
 
@@ -399,7 +401,7 @@ namespace UnityEngine.XR.iOS
 
             int x = 0;
 
-            foreach (GameObject pr in projectile)
+            /*foreach (GameObject pr in projectile)
             {
                 if (pr.activeSelf)
                 {
@@ -413,17 +415,14 @@ namespace UnityEngine.XR.iOS
                 x++;
             }
 
-            x = 0;
+            x = 0;*/
 
             foreach (GameObject pl in planet)
             {
                 Collider planetCollider = pl.GetComponent<Collider>();
+
                 if (bombCollider.bounds.Intersects(planetCollider.bounds))
                 {
-                    if (planet[x].transform.tag == "Infected")
-                    {
-                        gameManager.GetComponent<GameManager>().RemoveInfected(x);
-                    }
                     SetPlanetGood(x);
                 }
                 x++;
@@ -431,6 +430,7 @@ namespace UnityEngine.XR.iOS
 
             bomb.SetActive(false);
         }
+
 
         public void SetPulsing(bool b)
         {
@@ -445,6 +445,8 @@ namespace UnityEngine.XR.iOS
                 foreach (var hitResult in hitResults)
                 {
                     worldSpawn = true;
+
+                    Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
                     //Debug.Log ("Got hit!");
                     m_HitTransform.position = UnityARMatrixOps.GetPosition(hitResult.worldTransform);
@@ -680,30 +682,35 @@ namespace UnityEngine.XR.iOS
                         {
                             int ab = abilitySpawn.GetComponent<Ability>().UsingAbility();
 
+                            abilitySpawn.GetComponent<Ability>().ResetAbility();
+
                             if (ab == 3 && hit.collider.tag == "Planet")
                             {
                                 HandleInput();
 
                                 pulsingAbility = false;
-                                gameManager.GetComponent<GameManager>().ShieldPlanet(number);
-                                gameManager.GetComponent<GameManager>().DoAbility(planet[number].transform.position);
+
                                 abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
 
+                                //gameManager.GetComponent<GameManager>().ShieldPlanet(number);
+                                gameManager.GetComponent<GameManager>().DoAbility(number);
                             }
-                            else if (ab == 2 && (hit.collider.tag == "Shielded" || hit.collider.tag == "Planet"))
+                            if (ab == 2 && (hit.collider.tag == "Shielded" || hit.collider.tag == "Planet"))
                             {
                                 HandleInput();
 
                                 pulsingAbility = false;
 
-                                gameManager.GetComponent<GameManager>().DoAbility(planet[number].transform.position);
-
                                 abilitySpawn.GetComponent<Ability>().UpdateStatus(false);
+
+                                gameManager.GetComponent<GameManager>().DoAbility(number);
                             }
                         }
                         else if (hit.collider.tag == "Planet")
                         {
                             HandleInput();
+
+                            bomb.SetActive(false);
 
                             int z = ability[number];
                             // using ability
@@ -742,14 +749,16 @@ namespace UnityEngine.XR.iOS
                             // Set it to pulsing when ability is active... when activated again make it false.
                             pulsingAbility = true;
 
-                            gameManager.GetComponent<GameManager>().SetAbilityActive(true);
-
                             abilitySpawn.GetComponent<Ability>().SetPulsing(true);
+
+                            gameManager.GetComponent<GameManager>().SetAbilityActive(true);
                         }
 
                         if (hit.collider.tag == "Projectile")
                         {
                             pulsingAbility = false;
+
+                            bomb.SetActive(false);
 
                             if (oneOff == 0)
                             {

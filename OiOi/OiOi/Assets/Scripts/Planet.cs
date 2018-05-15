@@ -125,6 +125,10 @@ namespace UnityEngine.XR.iOS
                                     spawn.GetComponent<Spawn>().SetPlanetBad(nextInfection);
                                     gameManager.GetComponent<GameManager>().ResetEndPlanet(projectile);
                                 }
+                                if (spawn.GetComponent<Spawn>().GetPlanetHealth(nextInfection) == "Shielded")
+                                {
+                                    gameManager.GetComponent<GameManager>().InfectedProjectileDeactivate(projectile);
+                                }
                                 gameManager.GetComponent<GameManager>().InfectedProjectileDeactivate(projectile);
                             }
 
