@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace UnityEngine.XR.iOS
 {
@@ -14,6 +15,8 @@ namespace UnityEngine.XR.iOS
         // UI Screens
         [SerializeField] private GameObject tutorialScreen;
         [SerializeField] private GameObject gameScreen;
+        [SerializeField] private GameObject pauseScreen;
+        [SerializeField] private GameObject pauseTutorial;
 
         // Requried fields
         //[SerializeField] private GameObject tutorialText;
@@ -30,9 +33,9 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject startGame;
 
 
-        // change spawn - menuON status based if player in menu or not.
+		// change spawn - menuON status based if player in menu or not.
 
-        /* Tutorial pages
+		/* Tutorial pages
          * 1. Scan area to detect plane and show spawn area
          * 2. Planet introduction
          * 3. Infection Introduction
@@ -41,14 +44,69 @@ namespace UnityEngine.XR.iOS
          * 6. Game screen UI description
          */
 
-        public void HelpScreen()
+		public void HelpScreen()
         {
             
         }
 
+        public void QuitTutorial()
+        {
+            SceneManager.UnloadSceneAsync("Tutorial");
+            SceneManager.LoadScene("Menu");
+        }
+
+        public void GoToMainMenu()
+        {
+            SceneManager.UnloadSceneAsync("Game");
+            SceneManager.LoadScene("Menu");
+        }
+
+        public void Restart()
+        {
+            pauseScreen.SetActive(false);
+            gameScreen.SetActive(true);
+            Time.timeScale = 1.0f;
+
+            SceneManager.UnloadSceneAsync("Game");
+            SceneManager.LoadScene("Menu");
+            SceneManager.UnloadSceneAsync("Menu");
+            SceneManager.LoadScene("Game");
+        }
+
+        public void PauseTutorial()
+        {
+            spawn.GetComponent<Spawn>().SetMenuToggle(true);
+            Time.timeScale = 0.0f;
+
+            pauseTutorial.SetActive(true);
+            tutorialScreen.SetActive(false);
+        }
+
+        public void UnpauseTutorial()
+        {
+            spawn.GetComponent<Spawn>().SetMenuToggle(false);
+            Time.timeScale = 1.0f;
+
+            pauseTutorial.SetActive(false);
+            tutorialScreen.SetActive(true);
+        }
+
         public void PauseScreen()
         {
-            
+            spawn.GetComponent<Spawn>().SetMenuToggle(true);
+            Time.timeScale = 0.0f;
+
+            pauseScreen.SetActive(true);
+            gameScreen.SetActive(false);
+        }
+
+        public void UnpauseScreen()
+        {
+            spawn.GetComponent<Spawn>().SetMenuToggle(false);
+            Time.timeScale = 1.0f;
+
+            pauseScreen.SetActive(false);
+            gameScreen.SetActive(true);
         }
 
         public void TutorialScreen()
@@ -210,6 +268,7 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetMenuToggle(false);
 
             startGame.SetActive(false);
+            pauseScreen.SetActive(false);
             gameScreen.SetActive(true);
 
             gameManager.GetComponent<GameManager>().StartCoroutine("GameStart");

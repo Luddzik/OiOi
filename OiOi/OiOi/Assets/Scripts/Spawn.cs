@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace UnityEngine.XR.iOS
 {
@@ -14,6 +15,7 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject pathPrefab;
         [SerializeField] private GameObject projectilePrefab;
 
+        [SerializeField] private GameObject gameUI;
         [SerializeField] private GameObject gameManager;
         [SerializeField] private GameObject abilitySpawn;
 
@@ -48,7 +50,24 @@ namespace UnityEngine.XR.iOS
         public float maxRayDistance = 30.0f;
         public LayerMask collisionLayer = 1 << 10;  //ARKitPlane layer
 
-        public bool IsWorldSpawn()
+		private void Awake()
+		{
+            Scene current = SceneManager.GetActiveScene();
+
+            if(current.name == "Tutorial")
+            {
+                tutorial = true;
+                gameUI.GetComponent<Interface>().UnpauseTutorial();
+
+            }
+            if(current.name == "Game")
+            {
+                tutorial = false;
+                gameUI.GetComponent<Interface>().UnpauseScreen();
+            }
+		}
+
+		public bool IsWorldSpawn()
         {
             return worldSpawn;
         }
