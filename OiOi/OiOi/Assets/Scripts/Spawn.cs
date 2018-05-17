@@ -456,6 +456,18 @@ namespace UnityEngine.XR.iOS
             pulsingAbility = b;
         }
 
+        public void SetVolume(float vol)
+        {
+            for (int i = 0; i < planet.Length; i++)
+            {
+                planet[i].GetComponent<AudioSource>().volume = (vol / 100.0f);
+            }
+            for (int i = 0; i < projectile.Length; i++)
+            {
+                projectile[i].GetComponent<AudioSource>().volume = (vol / 100.0f);
+            }
+        }
+
         bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes)
         {
             List<ARHitTestResult> hitResults = UnityARSessionNativeInterface.GetARSessionNativeInterface().HitTest(point, resultTypes);

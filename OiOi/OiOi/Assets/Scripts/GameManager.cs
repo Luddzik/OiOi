@@ -50,6 +50,7 @@ namespace UnityEngine.XR.iOS
 
         IEnumerator GameSequence()
         {
+            ui.GetComponent<Interface>().TutorialScreen();
             // Set spawn location of ability (0.1f above the spawn location)
             spawnPos = spawn.GetComponent<Spawn>().m_HitTransform.position;
 
@@ -73,7 +74,7 @@ namespace UnityEngine.XR.iOS
             // 1. tutorial UI text
             ui.GetComponent<Interface>().TutorialOne();
 
-            yield return new WaitUntil(() => IsWorldSpawn());
+            yield return new WaitUntil(IsWorldSpawn);
 
             ui.GetComponent<Interface>().TutorialButtonActive();
 
@@ -142,7 +143,7 @@ namespace UnityEngine.XR.iOS
             x = (planetLoc - planetEndPos);
             speed = x.magnitude * 2.0f;
 
-            ui.GetComponent<Interface>().TutorialTwo();
+            //ui.GetComponent<Interface>().TutorialTwo();
 
             while (Vector3.Distance(planetLoc, planetEndPos) > 0.05f)
             {
@@ -271,12 +272,16 @@ namespace UnityEngine.XR.iOS
             tutorialClick = false;
 
             // Bomb Ability
+            ui.GetComponent<Interface>().TutorialSix();
+
             spawn.GetComponent<Spawn>().SetAbility(0, 2);
 
             yield return new WaitUntil(ButtonClicked);
             tutorialClick = false;
 
             // Shield Ability
+            ui.GetComponent<Interface>().TutorialSeven();
+
             spawn.GetComponent<Spawn>().SetAbility(0, 3);
 
             yield return new WaitUntil(ButtonClicked);
@@ -346,7 +351,16 @@ namespace UnityEngine.XR.iOS
             {
                 spawn.GetComponent<Spawn>().RefreshAbilities();
 
-                yield return new WaitForSeconds(50.0f);
+                yield return new WaitForSeconds(20.0f);
+
+                if(infectedPlanets.Count == 0)
+                {
+                    ui.GetComponent<Interface>().WinScreen();
+                }
+                if(infectedPlanets.Count == 10)
+                {
+                    ui.GetComponent<Interface>().LoseScreen();
+                }
             }
 
             //StartCoroutine("InfectionSpread");

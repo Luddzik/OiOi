@@ -17,36 +17,82 @@ namespace UnityEngine.XR.iOS
         [SerializeField] private GameObject gameScreen;
         [SerializeField] private GameObject pauseScreen;
         [SerializeField] private GameObject pauseTutorial;
+        [SerializeField] private GameObject helpScreen;
+        [SerializeField] private GameObject tutCompleteScreen;
+
+        // Help Screens
+        [SerializeField] private GameObject planetsScreen;
+        [SerializeField] private GameObject infectionScreen;
+        [SerializeField] private GameObject abilitiesScreen;
 
         // Requried fields
         //[SerializeField] private GameObject tutorialText;
         [SerializeField] private GameObject tutorialNextButton;
         [SerializeField] private GameObject tutorialComplete;
         [SerializeField] private GameObject textBg;
-        [SerializeField] private Text tutText;
+        [SerializeField] private GameObject tutText1;
+        [SerializeField] private GameObject tutText2;
+        [SerializeField] private GameObject tutText3;
+        [SerializeField] private GameObject tutText4;
+        [SerializeField] private GameObject tutText5;
+        [SerializeField] private GameObject tutText6;
+        [SerializeField] private GameObject tutText7;
+        [SerializeField] private GameObject tutText8;
 
         // UI text description
         [SerializeField] private GameObject helpDescription;
         [SerializeField] private GameObject pauseDescription;
 
-        // Start game UI
-        [SerializeField] private GameObject startGame;
+        // Win and Lost screen
+        [SerializeField] private GameObject winScreen;
+        [SerializeField] private GameObject loseScreen;
 
+        // Sound Variable
+        [SerializeField] private Slider soundSlider;
 
-		// change spawn - menuON status based if player in menu or not.
+        private void Awake()
+		{
+            soundSlider.value = PlayerPrefs.GetFloat("Volume", 0.5f);
+            spawn.GetComponent<Spawn>().SetVolume(soundSlider.value);
+		}
 
-		/* Tutorial pages
-         * 1. Scan area to detect plane and show spawn area
-         * 2. Planet introduction
-         * 3. Infection Introduction
-         * 4. Path/Projectile introduction
-         * 5. Abilities intro
-         * 6. Game screen UI description
-         */
+		public void SetVolume()
+        {
+            PlayerPrefs.SetFloat("Volume", soundSlider.value);
+            spawn.GetComponent<Spawn>().SetVolume(soundSlider.value);
+        }
 
 		public void HelpScreen()
         {
-            
+            spawn.GetComponent<Spawn>().SetMenuToggle(true);
+            Time.timeScale = 0.0f;
+
+            helpScreen.SetActive(true);
+            gameScreen.SetActive(false);
+            planetsScreen.SetActive(true);
+            abilitiesScreen.SetActive(false);
+            infectionScreen.SetActive(false);
+        }
+
+        public void PlanetsHelp()
+        {
+            planetsScreen.SetActive(true);
+            abilitiesScreen.SetActive(false);
+            infectionScreen.SetActive(false);
+        }
+
+        public void AbilitiesHelp()
+        {
+            abilitiesScreen.SetActive(true);
+            planetsScreen.SetActive(false);
+            infectionScreen.SetActive(false);
+        }
+
+        public void InfectionHelp()
+        {
+            infectionScreen.SetActive(true);
+            planetsScreen.SetActive(false);
+            abilitiesScreen.SetActive(false);
         }
 
         public void QuitTutorial()
@@ -106,6 +152,7 @@ namespace UnityEngine.XR.iOS
             Time.timeScale = 1.0f;
 
             pauseScreen.SetActive(false);
+            helpScreen.SetActive(false);
             gameScreen.SetActive(true);
         }
 
@@ -115,20 +162,20 @@ namespace UnityEngine.XR.iOS
             tutorialScreen.SetActive(true);
             tutorialNextButton.SetActive(false);
 
-            startGame.SetActive(false);
+            //startGame.SetActive(false);
 
             gameScreen.SetActive(false);
         }
 
         public void TutorialOne()
         {
-            string text = new string("Scan area and tap screen to place spawning pod.".ToCharArray());
+            //string text = new string("Scan area and tap screen to place spawning pod.".ToCharArray());
             textBg.SetActive(true);
             //tutText1.SetActive(true);
 
             //tutorialNextButton.SetActive(true);
-
-            tutText.text = text;
+            //tutText.text = "Scan area and tap screen to place spawning pod.";
+            tutText1.SetActive(true);
         }
 
         public void TutorialTwo()
@@ -136,7 +183,7 @@ namespace UnityEngine.XR.iOS
             //tutText1.SetActive(false);
             //tutText2.SetActive(true);
 
-            string text = new string("This world is made up of PLANETS, protect healthy ones.".ToCharArray());
+            //string text = new string("This world is made up of PLANETS, protect healthy ones.".ToCharArray());
 
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
 
@@ -144,7 +191,7 @@ namespace UnityEngine.XR.iOS
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText2.SetActive(true);
         }
 
         public void TutorialThree()
@@ -154,11 +201,11 @@ namespace UnityEngine.XR.iOS
             textBg.SetActive(true);
             //tutText3.SetActive(true);
 
-            string text = new string("Planets get INFECTED, having different shade.".ToCharArray());
+            //string text = new string("Planets get INFECTED, having different shade.".ToCharArray());
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText3.SetActive(true);
         }
 
         public void TutorialFour()
@@ -166,18 +213,18 @@ namespace UnityEngine.XR.iOS
             //tutText3.SetActive(false);
             //tutText4.SetActive(true);
 
-            string text = new string("Infection spreads by shooting PROJECTILES, PATH shown beforehand.".ToCharArray());
+            //string text = new string("Infection spreads by shooting PROJECTILES, PATH shown beforehand.".ToCharArray());
 
             textBg.SetActive(true);
 
             //tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText4.SetActive(true);
         }
 
         public void TutorialFive()
         {
-            string text = new string("TIME is one of three abilities in the game. It slows down projectiles. Once ability been picked up, it shows up on spawn location. Tap to activate.".ToCharArray());
+            //string text = new string("TIME is one of three abilities in the game. It slows down projectiles. Once ability been picked up, it shows up on spawn location. Tap to activate.".ToCharArray());
 
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
 
@@ -185,12 +232,12 @@ namespace UnityEngine.XR.iOS
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText5.SetActive(true);
         }
 
         public void TutorialSix()
         {
-            string text = new string("BOMB is another ability. Upon activation, click another planet to initialize bomb location, destroying infection at given location with radius.".ToCharArray());
+            //string text = new string("BOMB is another ability. Upon activation, click another planet to initialize bomb location, destroying infection at given location with radius.".ToCharArray());
 
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
 
@@ -198,12 +245,12 @@ namespace UnityEngine.XR.iOS
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText6.SetActive(true);
         }
 
         public void TutorialSeven()
         {
-            string text = new string("SHIELD protects planet from infection for short time. Upon activation tap planet which will be protected.".ToCharArray());
+            //string text = new string("SHIELD protects planet from infection for short time. Upon activation tap planet which will be protected.".ToCharArray());
 
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
 
@@ -211,7 +258,7 @@ namespace UnityEngine.XR.iOS
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText7.SetActive(true);
         }
 
         public void TutorialEight()
@@ -225,7 +272,7 @@ namespace UnityEngine.XR.iOS
 
         public void TutorialShield()
         {
-            string text = new string("SHIELDED planet looks like this.".ToCharArray());
+            //string text = new string("SHIELDED planet looks like this.".ToCharArray());
 
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
 
@@ -233,7 +280,7 @@ namespace UnityEngine.XR.iOS
 
             tutorialNextButton.SetActive(true);
 
-            tutText.text = text;
+            tutText8.SetActive(true);
         }
 
         public void TutorialButtonActive()
@@ -242,11 +289,14 @@ namespace UnityEngine.XR.iOS
 
             textBg.SetActive(false);
 
-            tutText.text = "";
-            //tutText1.SetActive(false);
-            //tutText2.SetActive(false);
-            //tutText3.SetActive(false);
-            //tutText4.SetActive(false);
+            tutText1.SetActive(false);
+            tutText2.SetActive(false);
+            tutText3.SetActive(false);
+            tutText4.SetActive(false);
+            tutText5.SetActive(false);
+            tutText6.SetActive(false);
+            tutText7.SetActive(false);
+            tutText8.SetActive(false);
 
             helpDescription.SetActive(false);
             pauseDescription.SetActive(false);
@@ -260,20 +310,44 @@ namespace UnityEngine.XR.iOS
             spawn.GetComponent<Spawn>().SetMenuToggle(true);
             spawn.GetComponent<Spawn>().SetTutorialStatus(false);
             tutorialScreen.SetActive(false);
-            startGame.SetActive(true);
+            tutCompleteScreen.SetActive(true);
+        }
+
+        public void ProceedGame()
+        {
+            spawn.GetComponent<Spawn>().SetMenuToggle(false);
+            tutCompleteScreen.SetActive(false);
+            SceneManager.UnloadSceneAsync("Tutorial");
+            SceneManager.LoadScene("Game");
         }
 
         public void StartGame()
         {
             spawn.GetComponent<Spawn>().SetMenuToggle(false);
 
-            startGame.SetActive(false);
+            //startGame.SetActive(false);
+            winScreen.SetActive(false);
+            loseScreen.SetActive(false);
             pauseScreen.SetActive(false);
+            helpScreen.SetActive(false);
             gameScreen.SetActive(true);
 
             gameManager.GetComponent<GameManager>().StartCoroutine("GameStart");
         }
 
-
+        public void WinScreen()
+        {
+            pauseScreen.SetActive(false);
+            helpScreen.SetActive(false);
+            gameScreen.SetActive(false);
+            winScreen.SetActive(true);
+        }
+        public void LoseScreen()
+        {
+            pauseScreen.SetActive(false);
+            helpScreen.SetActive(false);
+            gameScreen.SetActive(false);
+            loseScreen.SetActive(true);
+        }
 	}
 }

@@ -25,12 +25,21 @@ namespace UnityEngine.XR.iOS
          * 6. Game screen UI description
          */
 
+        // Sound Variable
+        [SerializeField] private Slider soundSlider;
+
 		private void Awake()
 		{
+            soundSlider.value = PlayerPrefs.GetFloat("Volume", 0.5f);
             mainMenuScreen.SetActive(true);
             gameScreen.SetActive(false);
             settingScreen.SetActive(false);
 		}
+
+        public void SetVolume()
+        {
+            PlayerPrefs.SetFloat("Volume", soundSlider.value);
+        }
 
 		public void MainMenu()
         {
