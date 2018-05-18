@@ -1,13 +1,13 @@
 ﻿<Properties StartupConfiguration="{4EE6C158-CE0C-D976-B017-96FAE5FDBDB1}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Interface.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MenuUI.cs">
     <Files>
       <File FileName="Assets/Scripts/WorldSpawn.cs" Line="68" Column="4" />
-      <File FileName="Assets/Scripts/Spawn.cs" Line="26" Column="22" />
-      <File FileName="Assets/Scripts/GameManager.cs" Line="73" Column="30" />
-      <File FileName="Assets/Scripts/Interface.cs" Line="304" Column="13" />
+      <File FileName="Assets/Scripts/Spawn.cs" Line="467" Column="83" />
+      <File FileName="Assets/Scripts/GameManager.cs" Line="652" Column="10" />
+      <File FileName="Assets/Scripts/Interface.cs" Line="63" Column="10" />
       <File FileName="Assets/Scripts/Ability.cs" Line="54" Column="9" />
-      <File FileName="Assets/Scripts/Planet.cs" Line="159" Column="43" />
-      <File FileName="Assets/Scripts/MenuUI.cs" Line="34" Column="9" />
+      <File FileName="Assets/Scripts/Planet.cs" Line="30" Column="29" />
+      <File FileName="Assets/Scripts/MenuUI.cs" Line="41" Column="63" />
       <File FileName="Assets/Scripts/MenuPlanetDeformation.cs" Line="12" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
